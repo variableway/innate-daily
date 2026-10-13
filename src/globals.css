@@ -81,6 +81,14 @@ body,
   height: 100%;
 }
 
+/* 隐藏横向滚动条（全局分类菜单的滑动条），滚动行为本身保留。 */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gallery-card {
     transition: none;

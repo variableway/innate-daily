@@ -6,9 +6,11 @@ import {
   type ComponentProps,
   type Ref,
 } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import {
   FileText,
   Folder,
+  Layers,
   PanelLeft,
   PanelLeftClose,
   PanelLeftOpen,
@@ -56,6 +58,7 @@ import {
 import { buildFolderTree } from "../../lib/writing/folder-tree"
 import { labelColorValue } from "../../lib/writing/label-color"
 import { categoryMeta } from "../../lib/writing/category-meta"
+import { getAllCollections } from "../../lib/collections/data"
 import { useMediaQuery } from "../../lib/use-media-query"
 
 export interface BlogPostFull extends BlogListItem {
@@ -85,6 +88,7 @@ export function BlogPageClient({
 }: BlogPageClientProps) {
   const isMobile = useIsMobile()
   const isWide = useMediaQuery("(min-width: 1280px)")
+  const navigate = useNavigate()
   const [query, setQuery] = useState("")
   const filterTag = filters.tag ?? null
   const filterCategory = filters.category ?? null
@@ -94,6 +98,7 @@ export function BlogPageClient({
   const [navOpen, setNavOpen] = useState(false)
   const navPanelRef = useRef<NavPanelHandle | null>(null)
   const [navCollapsed, setNavCollapsed] = useState(false)
+  const collectionsCount = useMemo(() => getAllCollections().length, [])
 
   const categories = useMemo(() => countByCategory(posts), [posts])
   const folders = useMemo(() => buildFolderTree(posts), [posts])
@@ -184,6 +189,11 @@ export function BlogPageClient({
         selectPost(slug)
         setNavOpen(false)
       }}
+      onOpenCollections={() => {
+        navigate({ to: "/collections" })
+        setNavOpen(false)
+      }}
+      collectionsCount={collectionsCount}
     />
   )
 
@@ -413,11 +423,13 @@ function WritingNav({
   filterCategory,
   filterFolder,
   query,
+  collectionsCount,
   onQueryChange,
   onShowAll,
   onSelectCategory,
   onSelectFolder,
   onSelectRecent,
+  onOpenCollections,
 }: {
   total: number
   categories: Array<{ id: string; count: number }>
@@ -427,11 +439,13 @@ function WritingNav({
   filterCategory: string | null
   filterFolder: string | null
   query: string
+  collectionsCount: number
   onQueryChange: (value: string) => void
   onShowAll: () => void
   onSelectCategory: (id: string) => void
   onSelectFolder: (id: string) => void
   onSelectRecent: (slug: string) => void
+  onOpenCollections: () => void
 }) {
   return (
     <nav
@@ -473,6 +487,14 @@ function WritingNav({
           />
           <SectionLabel>Folders</SectionLabel>
           <FolderNav nodes={folders} activeId={filterFolder} onSelect={onSelectFolder} />
+          {/* Collections 放在 Folders 下面 */}
+          <NavRow
+            icon={Layers}
+            label="Collections"
+            count={collectionsCount}
+            active={false}
+            onClick={onOpenCollections}
+          />
           <Separator className="mx-2" />
           <SectionLabel>Recent notes</SectionLabel>
           <ul className="flex flex-col gap-0.5">

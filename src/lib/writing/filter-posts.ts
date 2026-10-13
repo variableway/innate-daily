@@ -1,7 +1,7 @@
 export interface FilterablePost {
   slug: string
   title: string
-  excerpt: string
+  excerpt?: string
   category: string
   tags: string[]
   vault?: string
@@ -34,7 +34,7 @@ export function filterWritingPosts<T extends FilterablePost>(
     }
     if (!query) return true
     const haystack =
-      `${post.title} ${post.excerpt} ${post.tags.join(" ")} ${post.category} ${postFolderId(post)}`.toLowerCase()
+      `${post.title} ${post.excerpt ?? ""} ${post.tags.join(" ")} ${post.category} ${postFolderId(post)}`.toLowerCase()
     return haystack.includes(query)
   })
 }

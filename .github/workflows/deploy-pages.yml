@@ -25,15 +25,15 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout this site
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: site
 
       - name: Sparse checkout @innate/ui
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ vars.FE_TEMPLATES_REPO || 'variableway/innate-fe-templates' }}
           token: ${{ secrets.FE_TEMPLATES_TOKEN || github.token }}
@@ -46,11 +46,11 @@ jobs:
             pnpm-lock.yaml
           sparse-checkout-cone-mode: false
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 12
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -66,7 +66,7 @@ jobs:
           PUBLIC_PATH=./ pnpm --filter @innate/wip build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: templates/apps/daily-work/dist
 
@@ -74,9 +74,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

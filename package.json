@@ -21,7 +21,7 @@
     "@innate/ui": "workspace:*",
     "@tanstack/react-router": "^1.170.44",
     "lucide-react": "^1.56.0",
-    "mermaid": "^12.1.0",
+    "mermaid": "^12.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-markdown": "^10.1.0",

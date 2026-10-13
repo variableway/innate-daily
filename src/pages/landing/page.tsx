@@ -13,22 +13,21 @@ import { buildFolderTree } from "../../lib/writing/folder-tree"
 import { countByCategory, postFolderId } from "../../lib/writing/filter-posts"
 import { labelChipStyle } from "../../lib/writing/label-color"
 import { categoryMeta } from "../../lib/writing/category-meta"
+import { getAllCollections } from "../../lib/collections/data"
 
 /**
- * Landing：画廊式首页。每个内容目录是一个「展区」（GalleryCard），
- * 点击展区携带 ?folder= 进入 /writing 列表；分类 chips 同理携带 ?category=。
+ * Landing：画廊式首页。
+ * - Collections（AI 生成的站点收藏）作为独立展区放在最前。
+ * - Notes（内容目录）作为独立展区放在下面，点击携带 ?folder= 进入 /writing 列表。
+ * - Categories chips 同理携带 ?category=。
  */
 export function LandingPage() {
   const { posts, loading, error } = useWritingContent()
   const navigate = useNavigate()
 
   const folders = useMemo(() => buildFolderTree(posts), [posts])
-  const categories = useMemo(
-    () =>
-      // WritingPost.excerpt 可能缺省，countByCategory 只关心 category 字段，补空串对齐类型。
-      countByCategory(posts.map((post) => ({ ...post, excerpt: post.excerpt ?? "" }))),
-    [posts]
-  )
+  const categories = useMemo(() => countByCategory(posts), [posts])
+  const collections = useMemo(() => getAllCollections(), [])
 
   /** 各展区的最新文章标题（按日期倒序取 3 条）。 */
   const latestByFolder = useMemo(() => {
@@ -80,9 +79,9 @@ export function LandingPage() {
               Notes, curated like a gallery.
             </h1>
             <p className="text-muted-foreground max-w-xl text-sm leading-relaxed sm:text-base">
-              每个目录是一个展区，每篇笔记是一件展品。
-              共 {posts.length} 篇笔记，{folders.length} 个展区，
-              {categories.length} 个分类。
+              Collections 在前，Notes 在后。
+              共 {posts.length} 篇笔记，{folders.length} 个目录，
+              {categories.length} 个分类，{collections.length} 个收藏。
             </p>
             <div className="mt-1">
               <Button
@@ -96,9 +95,28 @@ export function LandingPage() {
             </div>
           </section>
 
+          {collections.length > 0 ? (
+            <section className="flex flex-col gap-3">
+              <h2 className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+                Collections
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {collections.map((item) => (
+                  <GalleryCard
+                    key={item.id}
+                    name={item.title}
+                    count={item.tags.length}
+                    latest={[item.description, ...item.tags]}
+                    onOpen={() => navigate({ to: "/collections" })}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="flex flex-col gap-3">
             <h2 className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-              Exhibitions
+              Notes
             </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {folders.map((node) => (

@@ -74,7 +74,7 @@
 4. `pnpm install --filter @innate/wip...` 安装依赖。
 5. `PUBLIC_PATH=./ pnpm --filter @innate/wip build` 构建。
 6. 上传 `templates/apps/daily-work/dist` 为 Pages artifact。
-7. `actions/deploy-pages@v4` 部署到 GitHub Pages。
+7. `actions/deploy-pages@v5` 部署到 GitHub Pages。
 
 ## fe-base Pages 部署步骤
 
@@ -92,7 +92,7 @@
 2. `pnpm install --frozen-lockfile` 安装全部 workspace 依赖。
 3. `PUBLIC_PATH=./ VITE_WRITING_SOURCE=docs pnpm --filter @innate/wip build` 构建（仅内联 `docs/`）。
 4. 上传 `apps/daily-work/dist` 为 Pages artifact。
-5. `actions/deploy-pages@v4` 部署到 GitHub Pages。
+5. `actions/deploy-pages@v5` 部署到 GitHub Pages。
 
 ## 本地验证构建产物
 
