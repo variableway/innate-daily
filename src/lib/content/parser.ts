@@ -39,9 +39,11 @@ function parseYamlBlock(block: string): Record<string, unknown> {
 }
 
 export function parseFrontmatter(content: string): { meta: PostMeta; body: string } {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
+  // Windows 编辑器可能写入 BOM / CRLF：先剥 BOM，正则本身已兼容 \r\n。
+  const normalized = content.replace(/^﻿/, "")
+  const match = normalized.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
   const data = match?.[1] ? parseYamlBlock(match[1]) : {}
-  const body = (match?.[2] ?? content).trim()
+  const body = (match?.[2] ?? normalized).trim()
 
   const tags = uniqueStrings([
     ...stringList(data.tags),

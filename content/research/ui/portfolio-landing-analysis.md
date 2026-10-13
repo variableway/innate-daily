@@ -106,12 +106,19 @@ use-cases/         → 「用例」展区（当前为空）
 
 ## 四、实施步骤（约 1–1.5 天）
 
-1. `/writing` 路由 search params 化（folder / category / tag）——前置改造，独立可测
-2. 生成式 SVG 封面 `cover-art.ts` + 单测
-3. `GalleryCard` + 画廊网格 + Hero，组装 `src/pages/landing/page.tsx`
-4. 路由切换：`/` → LandingPage，原列表保留在 `/writing`
-5. 全站过一遍暗色模式 + 移动端（网格 1→2→3 列响应式）
-6. 更新 `docs/` 与 README 中的路由说明
+> ✅ 2026-10-13 已全部落地（步骤 1–5），实测：30/30 测试通过、构建通过、`#/writing?folder=content` 点击穿透正常。
+
+1. `/writing` 路由 search params 化（folder / category / tag）——前置改造，独立可测 ✅
+2. 生成式 SVG 封面 `cover-art.ts` + 单测 ✅（waves / arcs / grid 三种生成器，5 个单测）
+3. `GalleryCard` + 画廊网格 + Hero，组装 `src/pages/landing/page.tsx` ✅
+4. 路由切换：`/` → LandingPage，原列表保留在 `/writing` ✅
+5. 全站过一遍暗色模式 + 移动端（网格 1→2→3 列响应式） ✅（暗色 token 化自动适配）
+6. 更新 `docs/` 与 README 中的路由说明 —— 待做
+
+落地偏差记录：
+
+- 强调色未引入 `#44ffbb`：当前默认主题为 notion 暖纸风，按 3.5 的预案保留了「单一强调色」手法但沿用主题 `primary` token，未写死薄荷绿。
+- 内容源已切换为 `all` 模式（content + docs + use-cases 三个 vault），因此首页展区为三个 vault 顶层目录，点击后可在侧栏继续下钻子目录。
 
 ## 五、风险与注意点
 

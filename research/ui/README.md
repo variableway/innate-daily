@@ -6,4 +6,6 @@ daily-work 的 UI / 视觉方向调研存档。调研结论只记录选型依据
 | --- | --- | --- |
 | [fonts.md](./fonts.md) | 阅读向字体选型：英文 / 中文 / 等宽 Top 10、推荐组合、针对本仓库的修改方法 | 2026-10 |
 
-落地进度：fonts.md 方案 A 的等宽部分已实施（2026-10-13，JetBrains Mono 接入代码块，见 `src/globals.css`）；中文字体与衬线正文方案尚未实施。
+落地进度：JetBrains Mono 已按用户选择升级为全站主字体（2026-10-13，`--font-sans` / `--font-mono` 均以 JB Mono 打头，并显式接管 body 字体，见 `src/globals.css`）；中文字体与衬线正文方案尚未实施。
+
+已知上游问题：`@innate/ui` 的 body 规则硬编码 `Inter, ui-sans-serif…` 且不走 `--font-sans` token，族名与 fontsource 注册的 `Inter Variable` 也不匹配——任何消费方在应用层覆盖 `--font-sans` 都不会影响 body，需像本应用一样显式写 `body { font-family: var(--font-sans) }` 接管。

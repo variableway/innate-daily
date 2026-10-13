@@ -1,4 +1,5 @@
 import { Badge, cn } from "@innate/ui"
+import { categoryMeta } from "../../lib/writing/category-meta"
 import { labelChipStyle } from "../../lib/writing/label-color"
 
 export interface BlogListItem {
@@ -37,10 +38,10 @@ export function BlogList({
             onClick={() => onSelect(item.slug)}
             data-active={isActive}
             className={cn(
-              "w-full rounded-xl border p-3 text-left transition-colors",
+              "w-full rounded-xl border p-3 text-left transition-all duration-150",
               isActive
-                ? "border-primary/40 bg-card ring-2 ring-primary/25"
-                : "border-transparent bg-transparent hover:border-border hover:bg-card"
+                ? "border-primary/40 bg-card shadow-sm ring-2 ring-primary/25"
+                : "border-transparent bg-transparent hover:border-border hover:bg-card hover:shadow-sm motion-safe:hover:-translate-y-0.5"
             )}
           >
             <div className="flex items-start justify-between gap-2">
@@ -60,7 +61,7 @@ export function BlogList({
               <Badge
                 variant="outline"
                 className="label-chip"
-                style={labelChipStyle(item.category)}
+                style={labelChipStyle(item.category, categoryMeta(item.category).hue)}
               >
                 {item.category}
               </Badge>

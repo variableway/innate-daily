@@ -1,5 +1,6 @@
-import { Folder } from "lucide-react"
 import { cn } from "@innate/ui"
+import { folderMeta } from "../../lib/writing/category-meta"
+import { labelColorValue } from "../../lib/writing/label-color"
 import type { FolderNode } from "../../lib/writing/folder-tree"
 
 export function FolderNav({
@@ -16,7 +17,10 @@ export function FolderNav({
   if (nodes.length === 0) return null
   return (
     <ul className="flex flex-col gap-0.5">
-      {nodes.map((node) => (
+      {nodes.map((node) => {
+        const meta = folderMeta(node.name)
+        const Icon = meta.icon
+        return (
         <li key={node.id}>
           <button
             type="button"
@@ -28,7 +32,11 @@ export function FolderNav({
               "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium"
             )}
           >
-            <Folder className="size-4 shrink-0" data-icon="inline-start" />
+            <Icon
+              className="size-4 shrink-0"
+              data-icon="inline-start"
+              style={{ color: labelColorValue(node.name, meta.hue) }}
+            />
             <span className="min-w-0 flex-1 truncate text-left">{node.name}</span>
             <span className="text-muted-foreground text-xs tabular-nums">{node.count}</span>
           </button>
@@ -41,7 +49,8 @@ export function FolderNav({
             />
           ) : null}
         </li>
-      ))}
+        )
+      })}
     </ul>
   )
 }

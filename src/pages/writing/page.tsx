@@ -1,3 +1,4 @@
+import { useNavigate, useSearch } from "@tanstack/react-router"
 import { BlogPageClient } from "../../components/writing/blog-page-client"
 import {
   WritingEmptyState,
@@ -5,9 +6,12 @@ import {
   WritingLoadingState,
 } from "../../components/writing/writing-status"
 import { useWritingContent } from "../../lib/content/use-writing-content"
+import type { WritingSearch } from "../../router"
 
 export function WritingPage() {
   const { posts, loading, error } = useWritingContent()
+  const search = useSearch({ strict: false }) as WritingSearch
+  const navigate = useNavigate()
 
   if (loading) return <WritingLoadingState />
   if (error) return <WritingErrorState message={error} />
@@ -35,5 +39,22 @@ export function WritingPage() {
     folder: post.folder,
   }))
 
-  return <BlogPageClient posts={list} />
+  return (
+    <BlogPageClient
+      posts={list}
+      filters={search}
+      onFiltersChange={(next) => {
+        // search params 不接受 null：空值统一转成 undefined（即从 URL 移除）。
+        navigate({
+          to: "/writing",
+          search: {
+            folder: next.folder ?? undefined,
+            category: next.category ?? undefined,
+            tag: next.tag ?? undefined,
+          },
+          replace: true,
+        })
+      }}
+    />
+  )
 }

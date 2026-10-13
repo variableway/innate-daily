@@ -7,8 +7,8 @@ import {
   type Ref,
 } from "react"
 import {
-  BookMarked,
   FileText,
+  Folder,
   PanelLeft,
   PanelLeftClose,
   PanelLeftOpen,
@@ -30,6 +30,11 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
   ScrollArea,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Separator,
   Sheet,
   SheetContent,
@@ -46,9 +51,11 @@ import { FolderNav } from "./folder-nav"
 import {
   countByCategory,
   filterWritingPosts,
+  type WritingListFilter,
 } from "../../lib/writing/filter-posts"
 import { buildFolderTree } from "../../lib/writing/folder-tree"
 import { labelColorValue } from "../../lib/writing/label-color"
+import { categoryMeta } from "../../lib/writing/category-meta"
 import { useMediaQuery } from "../../lib/use-media-query"
 
 export interface BlogPostFull extends BlogListItem {
@@ -60,6 +67,9 @@ export interface BlogPostFull extends BlogListItem {
 
 interface BlogPageClientProps {
   posts: BlogPostFull[]
+  /** 筛选状态由 URL search params 承载（见 router.tsx 的 validateWritingSearch）。 */
+  filters: WritingListFilter
+  onFiltersChange: (next: WritingListFilter) => void
 }
 
 type NavPanelHandle = NonNullable<
@@ -68,13 +78,17 @@ type NavPanelHandle = NonNullable<
   ? T
   : never
 
-export function BlogPageClient({ posts }: BlogPageClientProps) {
+export function BlogPageClient({
+  posts,
+  filters,
+  onFiltersChange,
+}: BlogPageClientProps) {
   const isMobile = useIsMobile()
   const isWide = useMediaQuery("(min-width: 1280px)")
   const [query, setQuery] = useState("")
-  const [filterTag, setFilterTag] = useState<string | null>(null)
-  const [filterCategory, setFilterCategory] = useState<string | null>(null)
-  const [filterFolder, setFilterFolder] = useState<string | null>(null)
+  const filterTag = filters.tag ?? null
+  const filterCategory = filters.category ?? null
+  const filterFolder = filters.folder ?? null
   const [activeSlug, setActiveSlug] = useState(posts[0]?.slug ?? "")
   const [mobileDetail, setMobileDetail] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
@@ -83,6 +97,17 @@ export function BlogPageClient({ posts }: BlogPageClientProps) {
 
   const categories = useMemo(() => countByCategory(posts), [posts])
   const folders = useMemo(() => buildFolderTree(posts), [posts])
+  const folderOptions = useMemo(() => {
+    const options: Array<{ id: string; name: string; depth: number }> = []
+    function walk(nodes: typeof folders, depth: number) {
+      for (const node of nodes) {
+        options.push({ id: node.id, name: node.name, depth })
+        walk(node.children, depth + 1)
+      }
+    }
+    walk(folders, 0)
+    return options
+  }, [folders])
   const recent = useMemo(() => posts.slice(0, 5), [posts])
   const filteredPosts = useMemo(
     () =>
@@ -121,9 +146,7 @@ export function BlogPageClient({ posts }: BlogPageClientProps) {
   }
 
   function showAll() {
-    setFilterCategory(null)
-    setFilterTag(null)
-    setFilterFolder(null)
+    onFiltersChange({})
   }
 
   const listTitle = filterFolder
@@ -150,15 +173,11 @@ export function BlogPageClient({ posts }: BlogPageClientProps) {
         setNavOpen(false)
       }}
       onSelectCategory={(id) => {
-        setFilterCategory(id)
-        setFilterTag(null)
-        setFilterFolder(null)
+        onFiltersChange({ category: id })
         setNavOpen(false)
       }}
       onSelectFolder={(id) => {
-        setFilterFolder(id)
-        setFilterCategory(null)
-        setFilterTag(null)
+        onFiltersChange({ folder: id })
         setNavOpen(false)
       }}
       onSelectRecent={(slug) => {
@@ -214,9 +233,40 @@ export function BlogPageClient({ posts }: BlogPageClientProps) {
           >
             {navCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
           </Button>
-          <h2 className="truncate text-sm font-semibold capitalize">
-            {listTitle}
-          </h2>
+          <Select
+            value={filterFolder ?? ""}
+            onValueChange={(value: string | null) => {
+              if (value) {
+                onFiltersChange({ folder: value })
+              } else {
+                showAll()
+              }
+            }}
+          >
+            <SelectTrigger
+              size="sm"
+              className="h-auto border-0 bg-transparent px-1 py-0 text-sm font-semibold capitalize shadow-none hover:bg-accent focus-visible:ring-0"
+            >
+              <SelectValue placeholder="All Notes">{listTitle}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">
+                <FileText className="size-4" data-icon />
+                All Notes
+              </SelectItem>
+              {folderOptions.map((folder) => (
+                <SelectItem key={folder.id} value={folder.id}>
+                  <span
+                    className="flex items-center gap-1.5"
+                    style={{ paddingLeft: `${folder.depth * 0.75}rem` }}
+                  >
+                    <Folder className="size-4 shrink-0" data-icon />
+                    {folder.name}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <span className="text-muted-foreground text-xs tabular-nums">
           {filteredPosts.length}
@@ -229,9 +279,7 @@ export function BlogPageClient({ posts }: BlogPageClientProps) {
             activeSlug={activeSlug}
             onSelect={selectPost}
             onTagClick={(tag) => {
-              setFilterTag(tag)
-              setFilterCategory(null)
-              setFilterFolder(null)
+              onFiltersChange({ tag })
             }}
           />
         ) : (
@@ -270,15 +318,11 @@ export function BlogPageClient({ posts }: BlogPageClientProps) {
           showToc
           onBack={() => setMobileDetail(false)}
           onTagClick={(tag) => {
-            setFilterTag(tag)
-            setFilterCategory(null)
-            setFilterFolder(null)
+            onFiltersChange({ tag })
             setMobileDetail(false)
           }}
           onCategoryClick={(category) => {
-            setFilterCategory(category)
-            setFilterTag(null)
-            setFilterFolder(null)
+            onFiltersChange({ category })
             setMobileDetail(false)
           }}
         />
@@ -453,12 +497,12 @@ function WritingNav({
             {categories.map((category) => (
               <li key={category.id}>
                 <NavRow
-                  icon={BookMarked}
+                  icon={categoryMeta(category.id).icon}
                   label={category.id}
                   count={category.count}
                   active={filterCategory === category.id}
                   onClick={() => onSelectCategory(category.id)}
-                  iconColor={labelColorValue(category.id)}
+                  iconColor={labelColorValue(category.id, categoryMeta(category.id).hue)}
                 />
               </li>
             ))}
