@@ -6,6 +6,7 @@ on:
     branches: [main, master]
     paths:
       - "use-cases/**"
+      - "docs/**"
       - "src/**"
       - "index.html"
       - "package.json"
@@ -59,15 +60,15 @@ jobs:
         working-directory: templates
         run: |
           mkdir -p apps
-          rm -rf apps/innate-wip
-          mv ../site apps/innate-wip
+          rm -rf apps/daily-work
+          mv ../site apps/daily-work
           pnpm install --filter @innate/wip...
           PUBLIC_PATH=./ pnpm --filter @innate/wip build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: templates/apps/innate-wip/dist
+          path: templates/apps/daily-work/dist
 
   deploy:
     environment:

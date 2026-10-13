@@ -33,8 +33,8 @@ This week we focused on getting the foundational pieces in place:
 
 ## Favorite Moment
 
-Getting the two-column writing layout to feel *right*. The balance between the blog list and the content viewer took some tweaking, but we're happy with where it landed.
+Getting the two-column writing layout to feel _right_. The balance between the blog list and the content viewer took some tweaking, but we're happy with where it landed.
 
 ---
 
-*This is part of our weekly log series. Follow along to see how we build, week by week.*
+_This is part of our weekly log series. Follow along to see how we build, week by week._

@@ -36,6 +36,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  ThemeSelector,
   cn,
   useIsMobile,
 } from "@innate/ui"
@@ -396,6 +397,9 @@ function WritingNav({
       <div className="flex h-12 shrink-0 items-center gap-2 px-4">
         <PenLine className="size-4" data-icon />
         <span className="text-sm font-semibold">Writing</span>
+        <div className="ml-auto">
+          <ThemeSelector />
+        </div>
       </div>
       <div className="px-3 pb-3">
         <InputGroup>

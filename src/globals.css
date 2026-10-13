@@ -1,4 +1,5 @@
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
 @import "@innate/ui/globals.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -14,9 +15,10 @@ body,
   height: 100%;
 }
 
-/* 本站浅色面再提亮一档；不改 @innate/ui 默认主题。 */
-:root,
-:root[data-theme] {
+/* 本站浅色面再提亮一档；只作用于 default 主题（且仅浅色模式），
+   其他主题变体（notion / linear / …）保留各自的彩色底色。 */
+:root:not(.dark),
+:root[data-theme="default"]:not(.dark) {
   --background: oklch(1 0 0);
   --card: oklch(1 0 0);
   --popover: oklch(1 0 0);
@@ -30,6 +32,12 @@ body,
   --sidebar-border: oklch(0.94 0 0);
   --surface: oklch(0.99 0 0);
   --code: oklch(0.985 0 0);
+}
+
+/* 柔化线框：圆角统一加大到 0.75rem（覆盖上游与各主题变体自带的 radius）。 */
+:root,
+:root[data-theme] {
+  --radius: 0.75rem;
 }
 
 /* 标签类配色（category 与 tag 共用）：色相由名字 hash 生成（见 lib/writing/label-color.ts），
@@ -86,6 +94,9 @@ body,
   --font-sans:
     "Inter Variable", "PingFang SC", "Noto Sans SC", "Microsoft YaHei",
     sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
 }
 
 /* Tailwind preflight 会清掉标题字号、列表符号和块间距，这里用 token 补回来。 */
@@ -179,7 +190,7 @@ body,
 }
 
 .markdown-content code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.85em;
   border-radius: 0.25rem;
   background: var(--muted);

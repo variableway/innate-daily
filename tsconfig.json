@@ -13,7 +13,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "baseUrl": ".",
     "paths": {
       "#writing-files": ["./src/lib/content/bundled-files.use-cases.ts"]
     }

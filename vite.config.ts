@@ -7,8 +7,11 @@ import tailwindcss from "@tailwindcss/vite"
 const pkgDir = path.dirname(fileURLToPath(import.meta.url))
 const repoRoot = path.resolve(pkgDir, "../..")
 
-function writingSourceMode(): "use-cases" | "docs" {
-  return process.env.VITE_WRITING_SOURCE === "docs" ? "docs" : "use-cases"
+function writingSourceMode(): "all" | "docs" | "use-cases" {
+  const source = process.env.VITE_WRITING_SOURCE
+  if (source === "docs") return "docs"
+  if (source === "use-cases") return "use-cases"
+  return "all"
 }
 
 export default defineConfig({

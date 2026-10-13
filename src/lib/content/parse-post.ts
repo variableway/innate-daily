@@ -25,17 +25,16 @@ export function sourceFromFilePath(
   relative: string
 } {
   const normalized = filePath.replace(/\\/g, "/")
-  if (source === "use-cases") {
-    const useCasesIdx = normalized.lastIndexOf("/use-cases/")
-    if (useCasesIdx >= 0) {
-      return {
-        vault: "use-cases",
-        relative: normalized.slice(useCasesIdx + "/use-cases/".length),
-      }
-    }
-  }
+  const useCasesIdx = normalized.lastIndexOf("/use-cases/")
   const docsIdx = normalized.lastIndexOf("/docs/")
   const contentIdx = normalized.lastIndexOf("/content/")
+
+  if (useCasesIdx >= 0 && useCasesIdx > docsIdx && useCasesIdx > contentIdx) {
+    return {
+      vault: "use-cases",
+      relative: normalized.slice(useCasesIdx + "/use-cases/".length),
+    }
+  }
   if (docsIdx >= 0 && docsIdx > contentIdx) {
     return {
       vault: "docs",

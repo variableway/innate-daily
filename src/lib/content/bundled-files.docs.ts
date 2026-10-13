@@ -1,4 +1,4 @@
-const docsFiles = import.meta.glob("../../../../../docs/**/*.{md,mdx}", {
+const docsFiles = import.meta.glob("../../../docs/**/*.{md,mdx}", {
   query: "?raw",
   eager: true,
   import: "default",

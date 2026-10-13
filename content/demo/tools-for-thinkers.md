@@ -11,7 +11,7 @@ excerpt: Most productivity tools optimize for output. But what about the tools t
 
 ## Rethinking Productivity Tools
 
-The productivity software market is saturated with tools that help you **do more**. More tasks. More projects. More sprints. But rarely do we ask: *are these tools helping us think better?*
+The productivity software market is saturated with tools that help you **do more**. More tasks. More projects. More sprints. But rarely do we ask: _are these tools helping us think better?_
 
 ### The Doing vs. Thinking Gap
 

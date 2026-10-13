@@ -26,11 +26,11 @@ A static site gives us all of this.
 
 Next.js supports three rendering modes:
 
-| Mode | Command | When to use |
-|------|---------|-------------|
-| **Static Export** | `STATIC_EXPORT=true next build` | Pure HTML, host anywhere |
-| **ISR (Server)** | `SERVER_MODE=true next build` | HTML + periodic revalidation |
-| **Development** | `next dev` | Dynamic rendering with HMR |
+| Mode              | Command                         | When to use                  |
+| ----------------- | ------------------------------- | ---------------------------- |
+| **Static Export** | `STATIC_EXPORT=true next build` | Pure HTML, host anywhere     |
+| **ISR (Server)**  | `SERVER_MODE=true next build`   | HTML + periodic revalidation |
+| **Development**   | `next dev`                      | Dynamic rendering with HMR   |
 
 We use **Static Export** for production. Every page is pre-rendered at build time into HTML files:
 
@@ -109,9 +109,9 @@ title: "Post Title"
 slug: post-slug
 date: 2026-04-14
 author: Innate Team
-category: thought        # thought | insight | log | article
+category: thought # thought | insight | log | article
 tags: [tag1, tag2, tag3]
-status: published        # published | draft | archived
+status: published # published | draft | archived
 excerpt: Short summary for list views
 ---
 ```
@@ -127,10 +127,12 @@ The rendering pipeline:
 
 ```typescript
 // The core reading function
-export const readFile = cache(async (relativePath: string): Promise<string | null> => {
-  const fullPath = path.join(CONTENT_DIR, relativePath)
-  return await fs.readFile(fullPath, 'utf-8')
-})
+export const readFile = cache(
+  async (relativePath: string): Promise<string | null> => {
+    const fullPath = path.join(CONTENT_DIR, relativePath)
+    return await fs.readFile(fullPath, "utf-8")
+  }
+)
 ```
 
 ## The Data Layer
@@ -171,13 +173,13 @@ The trade-off is that markdown content isn't visible to crawlers that don't exec
 
 Since the site is fully static, deployment options are unlimited:
 
-| Platform | Cost | Setup |
-|----------|------|-------|
-| **GitHub Pages** | Free | Push `dist/` to `gh-pages` branch |
-| **Vercel** | Free tier | Connect repo, auto-deploys |
-| **Netlify** | Free tier | Connect repo, auto-deploys |
-| **Cloudflare Pages** | Free | Connect repo, edge CDN |
-| **Any static host** | Varies | Upload `dist/` folder |
+| Platform             | Cost      | Setup                             |
+| -------------------- | --------- | --------------------------------- |
+| **GitHub Pages**     | Free      | Push `dist/` to `gh-pages` branch |
+| **Vercel**           | Free tier | Connect repo, auto-deploys        |
+| **Netlify**          | Free tier | Connect repo, auto-deploys        |
+| **Cloudflare Pages** | Free      | Connect repo, edge CDN            |
+| **Any static host**  | Varies    | Upload `dist/` folder             |
 
 We use GitHub Pages for simplicity — the same repo that holds the code also hosts the built site.
 

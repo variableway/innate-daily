@@ -64,7 +64,7 @@ With **Shiki** (rehype-pretty-code), code blocks look stunning:
 async function getPost(slug: string): Promise<Post | null> {
   const content = await readFile(`writing/${slug}.md`)
   if (!content) return null
-  
+
   const { meta, body } = parseFrontmatter(content)
   return { meta, content: body }
 }
@@ -72,11 +72,11 @@ async function getPost(slug: string): Promise<Post | null> {
 
 ## Tables
 
-| Feature | rehype-highlight | rehype-pretty-code (Shiki) |
-|---------|-----------------|---------------------------|
-| Quality | Good | Best (VS Code) |
-| Languages | ~190 | 200+ |
-| Themes | Few | VS Code themes |
-| Line numbers | No | Yes |
-| Highlight lines | No | Yes |
-| Server render | Yes | Yes |
+| Feature         | rehype-highlight | rehype-pretty-code (Shiki) |
+| --------------- | ---------------- | -------------------------- |
+| Quality         | Good             | Best (VS Code)             |
+| Languages       | ~190             | 200+                       |
+| Themes          | Few              | VS Code themes             |
+| Line numbers    | No               | Yes                        |
+| Highlight lines | No               | Yes                        |
+| Server render   | Yes              | Yes                        |

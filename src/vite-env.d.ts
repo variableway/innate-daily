@@ -10,7 +10,7 @@ interface ImportMeta {
 
 declare module "#writing-files" {
   export const writingFiles: Record<string, string>
-  export const writingSource: "use-cases" | "docs"
+  export const writingSource: "all" | "use-cases" | "docs"
 }
 
 declare module "mermaid/dist/mermaid.esm.min.mjs" {

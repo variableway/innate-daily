@@ -31,10 +31,12 @@ graph TD
 
 Or use the `chart` prop with a template literal:
 
-<MermaidBlock chart={`graph LR
+<MermaidBlock
+  chart={`graph LR
     Start --> Process
     Process --> End
-`} />
+`}
+/>
 
 ## Code with Shiki Highlighting
 
@@ -42,7 +44,7 @@ Or use the `chart` prop with a template literal:
 // JSX in MDX
 function Counter() {
   const [count, setCount] = useState(0)
-  return <button onClick={() => setCount(c => c + 1)}>{count}</button>
+  return <button onClick={() => setCount((c) => c + 1)}>{count}</button>
 }
 ```
 
@@ -50,7 +52,7 @@ function Counter() {
 
 MDX supports any valid Markdown plus JSX:
 
-- **Bold** and *italic* text
+- **Bold** and _italic_ text
 - [Links](https://example.com)
 - `inline code`
 - > Blockquotes

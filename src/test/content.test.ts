@@ -5,22 +5,26 @@ import { deriveExcerpt, parseFrontmatter } from "../lib/content/parser"
 import { fallbackSlug, parseWritingFile } from "../lib/content/parse-post"
 
 describe("writing content vault", () => {
-  it("bundles only local use-cases and content markdown by default", () => {
+  it("bundles local content, docs, and use-cases markdown by default", () => {
     const posts = getWritingMeta({ status: "published" })
     const files = Object.keys(writingFiles)
     expect(files.length).toBeGreaterThan(0)
     expect(
       files.every(
         (filePath) =>
-          filePath.includes("/use-cases/") || filePath.includes("/content/")
+          filePath.includes("/content/") ||
+          filePath.includes("/docs/") ||
+          filePath.includes("/use-cases/")
       )
     ).toBe(true)
-    expect(files.some((filePath) => filePath.includes("/docs/"))).toBe(false)
     expect(posts.length).toBeGreaterThan(0)
     expect(posts.every((post) => post.slug && post.title)).toBe(true)
     expect(
       posts.every(
-        (post) => post.vault === "use-cases" || post.vault === "content"
+        (post) =>
+          post.vault === "content" ||
+          post.vault === "docs" ||
+          post.vault === "use-cases"
       )
     ).toBe(true)
   })
@@ -57,8 +61,8 @@ describe("nested path fallbacks", () => {
     expect(fallbackSlug("/repo/docs/use-cases/01-empty-webshell.md")).toBe(
       "use-cases-01-empty-webshell"
     )
-    expect(fallbackSlug("/repo/docs/use-cases/01-empty-webshell.md", "docs")).toBe(
-      "docs-use-cases-01-empty-webshell"
+    expect(fallbackSlug("/repo/docs/modules/cli.md")).toBe(
+      "docs-modules-cli"
     )
   })
 
