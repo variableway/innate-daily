@@ -20,7 +20,7 @@
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@innate/ui": "workspace:*",
     "@tanstack/react-router": "^1.170.44",
-    "lucide-react": "^1.56.0",
+    "lucide-react": "^1.57.0",
     "mermaid": "^12.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
