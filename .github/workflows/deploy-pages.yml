@@ -35,7 +35,7 @@ jobs:
       - name: Sparse checkout @innate/ui
         uses: actions/checkout@v5
         with:
-          repository: ${{ vars.FE_TEMPLATES_REPO || 'variableway/innate-fe-templates' }}
+          repository: ${{ vars.FE_TEMPLATES_REPO || 'variableway/innate-fe' }}
           token: ${{ secrets.FE_TEMPLATES_TOKEN || github.token }}
           path: templates
           sparse-checkout: |
@@ -62,7 +62,9 @@ jobs:
           mkdir -p apps
           rm -rf apps/daily-work
           mv ../site apps/daily-work
-          pnpm install --filter @innate/wip...
+          # daily-work 是运行时注入的 workspace 项目，base 仓 lockfile 没有它的 importer；
+          # CI 下 pnpm 默认 frozen-lockfile 会拒绝，放行让 runner 内重新解析（不回写仓库）
+          pnpm install --filter @innate/wip... --no-frozen-lockfile
           PUBLIC_PATH=./ pnpm --filter @innate/wip build
 
       - name: Upload artifact
