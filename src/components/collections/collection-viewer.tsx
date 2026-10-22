@@ -1,88 +1,125 @@
 import { useState } from "react"
-import { ArrowLeft, ExternalLink, Loader2, Tag } from "lucide-react"
+import { ArrowLeft, ExternalLink, Loader2, Star } from "lucide-react"
+import { Badge, Button } from "@innate/ui"
 import type { CollectionItem } from "../../lib/collections/types"
+import { categoryMeta } from "../../lib/writing/category-meta"
 import { labelChipStyle } from "../../lib/writing/label-color"
-
-const chipClass =
-  "label-chip inline-flex items-center rounded border px-1.5 py-0.5 text-[10px] font-medium"
 
 interface CollectionViewerProps {
   item: CollectionItem
   onBack?: () => void
   isMobile?: boolean
   onTagClick?: (tag: string) => void
+  onCategoryClick?: (category: string) => void
+  onSourceClick?: (source: string) => void
 }
 
-export function CollectionViewer({ item, onBack, isMobile, onTagClick }: CollectionViewerProps) {
+/** 右侧查看器：条目头与 /writing 的 BlogViewer 同构（徽标 + 标题 + meta 行），下方 iframe 预览。 */
+export function CollectionViewer({
+  item,
+  onBack,
+  isMobile,
+  onTagClick,
+  onCategoryClick,
+  onSourceClick,
+}: CollectionViewerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
 
   return (
-    <div className="flex h-full flex-col">
-      {/* 条目头 */}
-      <div className="border-border border-b px-4 py-3">
-        {isMobile && onBack && (
-          <button
+    <div className="flex h-full min-h-0 flex-col">
+      <header className="shrink-0 border-b border-border px-6 py-5 md:px-8">
+        {isMobile && onBack ? (
+          <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={onBack}
-            className="text-muted-foreground hover:text-foreground mb-2 flex items-center gap-1 text-sm transition-colors"
+            className="mb-3 md:hidden"
           >
-            <ArrowLeft className="h-4 w-4" data-icon />
-            Back to grid
-          </button>
-        )}
+            <ArrowLeft data-icon="inline-start" />
+            Back
+          </Button>
+        ) : null}
 
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            {/* Source + Category 徽标 */}
-            <div className="mb-1 flex items-center gap-1.5">
-              <span className={`${chipClass} uppercase tracking-wide`} style={labelChipStyle(item.source)}>
-                {item.source}
-              </span>
-              <span className={chipClass} style={labelChipStyle(item.category)}>
-                {item.category}
-              </span>
-            </div>
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
+          <Badge
+            variant="outline"
+            className="label-chip uppercase tracking-wide"
+            style={labelChipStyle(item.source)}
+            render={
+              onSourceClick ? (
+                <button type="button" onClick={() => onSourceClick(item.source)} />
+              ) : undefined
+            }
+          >
+            {item.source}
+          </Badge>
+          <Badge
+            variant="outline"
+            className="label-chip"
+            style={labelChipStyle(item.category, categoryMeta(item.category).hue)}
+            render={
+              onCategoryClick ? (
+                <button type="button" onClick={() => onCategoryClick(item.category)} />
+              ) : undefined
+            }
+          >
+            {item.category}
+          </Badge>
+          {item.featured ? (
+            <Badge
+              variant="outline"
+              className="border-transparent bg-primary/10 text-primary gap-0.5"
+            >
+              <Star className="size-2.5" data-icon />
+              Featured
+            </Badge>
+          ) : null}
+        </div>
 
-            {/* 标题 */}
-            <h1 className="text-foreground text-lg leading-tight font-bold">
-              {item.title}
-            </h1>
+        <h1 className="text-foreground text-2xl font-semibold tracking-tight md:text-[1.75rem]">
+          {item.title}
+        </h1>
+        {item.description ? (
+          <p className="text-muted-foreground mt-1.5 max-w-2xl text-sm leading-relaxed">
+            {item.description}
+          </p>
+        ) : null}
 
-            {/* 简介 */}
-            {item.description && (
-              <p className="text-muted-foreground mt-1 text-xs leading-relaxed">{item.description}</p>
-            )}
-
-            {/* 标签 + 日期 */}
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="text-muted-foreground text-[11px] tabular-nums">{item.date}</span>
+        <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1">
+          <span className="text-muted-foreground text-sm">Updated {item.date}</span>
+          {item.tags.length > 0 ? (
+            <>
+              <span className="text-muted-foreground text-sm">·</span>
               {item.tags.map((tag) => (
-                <button
+                <Badge
                   key={tag}
-                  type="button"
-                  onClick={() => onTagClick?.(tag)}
-                  className="bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[10px] transition-colors"
+                  variant="outline"
+                  className="label-chip cursor-pointer"
+                  style={labelChipStyle(tag)}
+                  render={
+                    onTagClick ? (
+                      <button type="button" onClick={() => onTagClick(tag)} />
+                    ) : undefined
+                  }
                 >
-                  <Tag className="h-2.5 w-2.5" />
                   {tag}
-                </button>
+                </Badge>
               ))}
-            </div>
-          </div>
-
-          {/* 新窗口打开（embed 失败时的主出口） */}
+            </>
+          ) : null}
           <a
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground hover:bg-secondary flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors"
+            className="text-primary hover:text-primary/80 ml-auto inline-flex items-center gap-1 text-sm underline-offset-2 hover:underline"
           >
             <ExternalLink className="h-3.5 w-3.5" data-icon />
-            <span className="hidden sm:inline">Open</span>
+            Open site
           </a>
         </div>
-      </div>
+      </header>
 
       {/* iframe 预览 */}
       <div className="min-h-0 flex-1 p-4">
