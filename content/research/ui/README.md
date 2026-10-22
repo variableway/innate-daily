@@ -1,4 +1,4 @@
-# research/ui
+# UI 研究
 
 daily-work 的 UI / 视觉方向调研存档。调研结论只记录选型依据与接入方法，不代表已落地；落地时以 `src/globals.css` 实际代码为准。
 
