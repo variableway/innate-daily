@@ -30,10 +30,8 @@ describe("writing content vault", () => {
   })
 
   it("loads demo content posts with content vault metadata", () => {
-    const post = getWritingMeta().find((item) =>
-      item.slug.includes("tools-for-thinkers")
-    )
-    expect(post?.title).toMatch(/Tools for Thinkers/)
+    const post = getWritingMeta().find((item) => item.slug.includes("demo-charts"))
+    expect(post?.title).toMatch(/Charts & Diagrams with Mermaid/)
     expect(post?.vault).toBe("content")
     expect(post?.folder).toBe("demo")
   })
