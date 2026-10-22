@@ -1,9 +1,11 @@
 import {
+  Blocks,
   BookOpen,
   CalendarDays,
   FileText,
   FlaskConical,
   Folder,
+  Hammer,
   Lightbulb,
   Package,
   Palette,
@@ -28,6 +30,7 @@ const CATEGORY_META: Record<string, LabelMeta> = {
   insight: { icon: Lightbulb, hue: 250 },
   research: { icon: FlaskConical, hue: 300 },
   demo: { icon: Wrench, hue: 150 },
+  guide: { icon: Hammer, hue: 45 },
   weekly: { icon: CalendarDays, hue: 60 },
   log: { icon: CalendarDays, hue: 60 },
 }
@@ -39,6 +42,7 @@ const FOLDER_META: Record<string, LabelMeta> = {
   ui: { icon: Palette, hue: 300 },
   specs: { icon: FileText, hue: 210 },
   "use-cases": { icon: Package, hue: 20 },
+  "build-it-own": { icon: Blocks, hue: 30 },
 }
 
 function lookup(table: Record<string, LabelMeta>, name: string): LabelMeta | null {

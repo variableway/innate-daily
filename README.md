@@ -20,11 +20,11 @@ VITE_WRITING_SOURCE=docs pnpm --filter @innate/daily dev
 
 内容在**构建期**经 `import.meta.glob(?raw)` 内联进 bundle（运行时无 fs、无网络请求）。把 Markdown / MDX 文件放到以下目录即可被站点收录：
 
-| 目录         | 用途                                            |
-| ------------ | ----------------------------------------------- |
-| `content/`   | 本仓内容源（演示内容在 `content/demo/`）        |
-| `docs/`      | 文档内容源（cli / modules / specs / use-cases） |
-| `use-cases/` | use-case 内容源（当前为空占位）                 |
+| 目录         | 用途                                                          |
+| ------------ | ------------------------------------------------------------- |
+| `content/`   | 本仓内容源（演示在 `content/demo/`，调研在 `content/research/`） |
+| `use-cases/` | 自建指南（`use-cases/build-it-own/`）：如何用公共包拼出自己的站   |
+| `docs/`      | 文档内容源（当前为空；`docs` 模式保留，等有新文档再放）           |
 
 通过 `VITE_WRITING_SOURCE` 控制内联范围：未设置 / `all`（默认，聚合全部）、`docs`（仅 docs/）、`use-cases`（use-cases/ + content/）。
 
