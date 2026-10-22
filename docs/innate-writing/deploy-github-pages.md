@@ -1,6 +1,6 @@
 # GitHub Pages 部署
 
-`@innate/wip`（`apps/daily-work/`）是一个纯静态 SPA，通过两条独立的 CI 线部署到 GitHub Pages。本文说明部署原理、配置项与操作步骤。
+`@innate/daily`（`apps/daily-work/`）是一个纯静态 SPA，通过两条独立的 CI 线部署到 GitHub Pages。本文说明部署原理、配置项与操作步骤。
 
 ## 两条部署线
 
@@ -71,8 +71,8 @@
 1. Checkout 本仓到 `site/` 目录。
 2. Sparse checkout `fe-templates` 仓的 `packages/ui`、`packages/tsconfig`、`package.json`、`pnpm-workspace.yaml`、`pnpm-lock.yaml` 到 `templates/`。
 3. 在 `templates/` 下：`mv ../site apps/daily-work`，组装成最小 workspace。
-4. `pnpm install --filter @innate/wip...` 安装依赖。
-5. `PUBLIC_PATH=./ pnpm --filter @innate/wip build` 构建。
+4. `pnpm install --filter @innate/daily...` 安装依赖。
+5. `PUBLIC_PATH=./ pnpm --filter @innate/daily build` 构建。
 6. 上传 `templates/apps/daily-work/dist` 为 Pages artifact。
 7. `actions/deploy-pages@v5` 部署到 GitHub Pages。
 
@@ -90,7 +90,7 @@
 
 1. Checkout 父仓（含 submodules）。
 2. `pnpm install --frozen-lockfile` 安装全部 workspace 依赖。
-3. `PUBLIC_PATH=./ VITE_WRITING_SOURCE=docs pnpm --filter @innate/wip build` 构建（仅内联 `docs/`）。
+3. `PUBLIC_PATH=./ VITE_WRITING_SOURCE=docs pnpm --filter @innate/daily build` 构建（仅内联 `docs/`）。
 4. 上传 `apps/daily-work/dist` 为 Pages artifact。
 5. `actions/deploy-pages@v5` 部署到 GitHub Pages。
 
@@ -100,8 +100,8 @@
 
 ```bash
 # 在 fe-templates 根（workspace 可解析 @innate/ui）
-PUBLIC_PATH=./ pnpm --filter @innate/wip build
-pnpm --filter @innate/wip preview
+PUBLIC_PATH=./ pnpm --filter @innate/daily build
+pnpm --filter @innate/daily preview
 # → http://localhost:4016/  验证 hash 路由跳转、资源加载、内容渲染
 ```
 

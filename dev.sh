@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 在 innate-wip 根目录启动 writing 静态站。
+# 在 innate-daily 根目录启动 writing 静态站。
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -7,7 +7,7 @@ cd "$ROOT"
 
 if [[ -f "$ROOT/../../pnpm-workspace.yaml" ]]; then
   cd "$ROOT/../.."
-  exec pnpm --filter @innate/wip dev
+  exec pnpm --filter @innate/daily dev
 fi
 
 if [[ -x "$ROOT/node_modules/.bin/vite" ]]; then

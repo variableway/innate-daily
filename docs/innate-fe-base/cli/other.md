@@ -119,7 +119,7 @@ innate-fe-cli import --remove --from my-plugin
 
 ## pages
 
-文稿仓（innate-wip）的 Pages 打包/部署。
+文稿仓（innate-daily）的 Pages 打包/部署。
 
 ### 用法
 
@@ -155,11 +155,11 @@ innate-fe-cli pages <pack|deploy> [--dir <vault>] [--shell <zip>] [--out <dir>] 
 
 ```bash
 # 在文稿仓根目录打包
-cd path/to/innate-wip
+cd path/to/innate-daily
 innate-fe-cli pages pack
 
 # 指定文稿仓目录
-innate-fe-cli pages pack --dir path/to/innate-wip
+innate-fe-cli pages pack --dir path/to/innate-daily
 
 # 指定本地壳 zip
 innate-fe-cli pages pack --shell ./shell.zip

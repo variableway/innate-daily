@@ -1,8 +1,8 @@
 # innate.domain-pages.v1 — 文稿仓静态站
 
-文稿仓（如 `apps/innate-wip`）不 clone fe-templates。它只声明「用哪份 UI + 哪几页 markdown」，由 `innate-fe-cli pages pack` 下载 **pages-kit** release 叠站。
+文稿仓（如 `apps/innate-daily`）不 clone fe-templates。它只声明「用哪份 UI + 哪几页 markdown」，由 `innate-fe-cli pages pack` 下载 **pages-kit** release 叠站。
 
-操作步骤、最小文件树、本机 / CI 命令：[用例 7](../use-cases/07-wip-static-pages.md)。
+操作步骤、最小文件树、本机 / CI 命令：[用例 7](../use-cases/07-innate-daily-static-pages.md)。
 
 | 字段     | 值                                                                                           |
 | -------- | -------------------------------------------------------------------------------------------- |
@@ -18,7 +18,7 @@ template:
   release: pages-kit
   shell: writing-shell.zip
 site:
-  title: Innate WIP
+  title: Innate Daily
   defaultPath: /
   home: ./pages/home.md
 domains:
@@ -52,12 +52,12 @@ pages:
 ## Pack
 
 ```bash
-# 在 innate-wip 根（或 --dir）
+# 在 innate-daily 根（或 --dir）
 innate-fe-cli pages pack
 # → site/   再由 GitHub Action 上传 Pages
 ```
 
-`pages pack` 解析 zip 的顺序：`--shell` → `PAGES_SHELL_ZIP` → 旁路已有 zip → `gh release download`（需 `FE_TEMPLATES_TOKEN` 或 `GH_TOKEN`）。不跑 `pnpm install`，不 clone 大仓。fe-base 上的 Writing GitHub Pages 直接构建 `apps/innate-wip`（`VITE_WRITING_SOURCE=docs`），不走这份 zip。
+`pages pack` 解析 zip 的顺序：`--shell` → `PAGES_SHELL_ZIP` → 旁路已有 zip → `gh release download`（需 `FE_TEMPLATES_TOKEN` 或 `GH_TOKEN`）。不跑 `pnpm install`，不 clone 大仓。fe-base 上的 Writing GitHub Pages 直接构建 `apps/innate-daily`（`VITE_WRITING_SOURCE=docs`），不走这份 zip。
 
 叠完后产物至少包含：
 

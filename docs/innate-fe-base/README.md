@@ -15,7 +15,7 @@ Innate FE Dev Base, Docs are use case driven. So Please find use case to quick s
 | 4. wandesk-ui iframe     | [use-cases/04-integrate-wandesk-ui.md](./archieve/use-cases/04-integrate-wandesk-ui.md)              | 同上 profile                                                                  |
 | 5. 三个应用打进同一壳    | [use-cases/05-pack-all-apps.md](./archieve/use-cases/05-pack-all-apps.md)                            | `dev --profile apps`                                                          |
 | 6. 打成一份静态站并预览  | [use-cases/06-build-and-preview.md](./archieve/use-cases/06-build-and-preview.md)                    | `all --profile apps` → `preview`（一个端口）                                  |
-| 7. Writing 静态站        | [use-cases/07-wip-static-pages.md](./archieve/use-cases/07-wip-static-pages.md)                      | `apps/daily-work`；fe-base Pages 扫 `docs/`                                   |
+| 7. Writing 静态站        | [use-cases/07-innate-daily-static-pages.md](./archieve/use-cases/07-innate-daily-static-pages.md)                      | `apps/daily-work`；fe-base Pages 扫 `docs/`                                   |
 | 为何 domain / iframe     | [context/why-iframe-domain.md](./archieve/context/why-iframe-domain.md)                              | 架构选择、限制、iframe 互通可能方案                                           |
 
 ## Usage（怎么操作）

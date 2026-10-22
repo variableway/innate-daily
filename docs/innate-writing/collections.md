@@ -38,8 +38,8 @@
 加完后本地验证：
 
 ```bash
-pnpm --filter @innate/wip test    # 数据完整性测试
-pnpm --filter @innate/wip dev     # 侧栏 Notes 下点 Collections 查看
+pnpm --filter @innate/daily test    # 数据完整性测试
+pnpm --filter @innate/daily dev     # 侧栏 Notes 下点 Collections 查看
 ```
 
 ## 页面行为与入口

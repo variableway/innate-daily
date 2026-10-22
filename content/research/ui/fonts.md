@@ -123,7 +123,7 @@
 ### 6.1 方案 A：统一中文观感 + 换代码块字体（最小改动）
 
 ```bash
-pnpm --filter @innate/wip add @fontsource-variable/noto-sans-sc @fontsource-variable/jetbrains-mono
+pnpm --filter @innate/daily add @fontsource-variable/noto-sans-sc @fontsource-variable/jetbrains-mono
 ```
 
 `apps/daily-work/src/globals.css` 三处改动：
@@ -160,7 +160,7 @@ pnpm --filter @innate/wip add @fontsource-variable/noto-sans-sc @fontsource-vari
 在 6.1 基础上：
 
 ```bash
-pnpm --filter @innate/wip add @fontsource-variable/source-serif-4 @fontsource-variable/noto-serif-sc
+pnpm --filter @innate/daily add @fontsource-variable/source-serif-4 @fontsource-variable/noto-serif-sc
 ```
 
 ```css
@@ -183,7 +183,7 @@ pnpm --filter @innate/wip add @fontsource-variable/source-serif-4 @fontsource-va
 ### 6.3 方案 C：霞鹜文楷正文 + 更纱黑体代码
 
 ```bash
-pnpm --filter @innate/wip add @fontsource/lxgw-wenkai lxgw-wenkai-screen-webfont
+pnpm --filter @innate/daily add @fontsource/lxgw-wenkai lxgw-wenkai-screen-webfont
 ```
 
 ```css
@@ -221,11 +221,11 @@ Sarasa Mono SC 不在 npm 正规渠道，从 [GitHub Releases](https://github.co
 - fontsource v5 所有 `@font-face` 默认 `font-display: swap`，先渲染回退字体再替换，不会白屏。
 - CJK 分片**不要** preload（分片太多且不可预测）；拉丁 variable 包可在 `index.html` 加 `<link rel="preload" as="font">` 进一步消除闪动，非必须。
 - 消除 swap 布局抖动的进阶手段是给回退字体做 metric override（`size-adjust` / `ascent-override`，参考 Fontaine 的做法），对本站收益有限，可不做。
-- 构建后用 `pnpm --filter @innate/wip build && du -sh apps/daily-work/dist` 复核体积，以产物为准。
+- 构建后用 `pnpm --filter @innate/daily build && du -sh apps/daily-work/dist` 复核体积，以产物为准。
 
 ### 6.5 验证
 
-- `pnpm --filter @innate/wip dev` 起本地站，检查：中文正文无衬线/衬线生效、代码块连字（如 `=>` `!==`）、暗色主题（含默认 Notion 暖纸变体）下字体一致、mermaid 图（其 fontFamily 是独立配置，见 `src/components/mermaid-block.tsx:18`，如需同步改字体记得一并调整）。
+- `pnpm --filter @innate/daily dev` 起本地站，检查：中文正文无衬线/衬线生效、代码块连字（如 `=>` `!==`）、暗色主题（含默认 Notion 暖纸变体）下字体一致、mermaid 图（其 fontFamily 是独立配置，见 `src/components/mermaid-block.tsx:18`，如需同步改字体记得一并调整）。
 - 走仓库统一验证闭环：根目录 `pnpm verify`。
 
 ---
