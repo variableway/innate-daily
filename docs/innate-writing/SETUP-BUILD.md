@@ -73,6 +73,8 @@ D:\innate-workspace\
 
 参考：本仓 CI（`.github/workflows/deploy-pages.yml`）目前的做法是 sparse checkout `variableway/innate-fe-templates` 仓的 `packages/ui` + `packages/tsconfig` + workspace 文件，把本仓挪进 `apps/daily-work`，**借 templates 仓的 workspace** 执行 `pnpm install --filter @innate/daily...` 后构建。本地不需要这么绕，见下面路线。
 
+> CI 与本地的 `@innate/ui` 取法不同，是**故意**的：本地走私有 registry（`.npmrc` → `127.0.0.1:4873`），CI 上没有这台 Verdaccio，只能借 workspace 里的 `packages/ui`。但站点被注入后已是 base workspace 的一个 project，pnpm 只读 **workspace 根**的设置，站点自己的 `.npmrc` / `pnpm-workspace.yaml` 都不生效——所以 workflow 会在 base workspace 根的 `pnpm-workspace.yaml` 追加 `linkWorkspacePackages` / `preferWorkspacePackages`，`@innate/ui@^0.1.0` 才会链到 `packages/ui` 而不是去 npm 找（404）。详见 [deploy-github-pages.md](./deploy-github-pages.md)。
+
 ---
 
 ## 3. 路线 0（推荐）：`innate-fe-cli install` 一键接入本地私有源

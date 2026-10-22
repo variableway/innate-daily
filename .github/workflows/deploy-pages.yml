@@ -62,6 +62,12 @@ jobs:
           mkdir -p apps
           rm -rf apps/daily-work
           mv ../site apps/daily-work
+          # pnpm 只从 workspace 根（templates/pnpm-workspace.yaml）读设置，站点自带的
+          # pnpm-workspace.yaml / .npmrc 在这个注入式 workspace 里都不生效。
+          # @innate/ui@^0.1.0 没有发布到 npm（站点本地开发走 127.0.0.1:4873 私有源），
+          # 这里显式打开 workspace 链接，让它用 sparse checkout 出来的 packages/ui，
+          # 否则 pnpm 会去 npm 找 @innate/ui 并 404。
+          printf '\nlinkWorkspacePackages: true\npreferWorkspacePackages: true\n' >> pnpm-workspace.yaml
           # daily-work 是运行时注入的 workspace 项目，base 仓 lockfile 没有它的 importer；
           # CI 下 pnpm 默认 frozen-lockfile 会拒绝，放行让 runner 内重新解析（不回写仓库）
           pnpm install --filter @innate/daily... --no-frozen-lockfile
