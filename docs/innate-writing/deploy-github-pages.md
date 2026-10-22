@@ -17,6 +17,7 @@
 2. **`@innate/ui` 可获取**：
    - 本仓 Pages：通过 sparse checkout 从 `fe-templates` 仓拉取 `packages/ui`，需配置仓库变量 `FE_TEMPLATES_REPO`（默认 `variableway/innate-fe-templates`）和密钥 `FE_TEMPLATES_TOKEN`（私有仓时需要）。
    - fe-base Pages：`@innate/ui` 是 workspace 成员（`workspace:*`），直接 `pnpm install` 即可。
+   - 本仓 Pages 里站点是**被注入**到 `fe-templates` workspace 的（`apps/daily-work`），它自己的 `.npmrc`（`@innate` 指向本机 `127.0.0.1:4873` 私有源）与 `pnpm-workspace.yaml` 都不生效——pnpm 只读 workspace 根的设置。因此 workflow 会在 workspace 根的 `pnpm-workspace.yaml` 追加 `linkWorkspacePackages` / `preferWorkspacePackages`，让 `@innate/ui@^0.1.0` 链接到 sparse checkout 出来的 `packages/ui`，而不是去 npm 上找一个从未发布的包。
 3. **Node 22 + pnpm 12**：Workflow 中已固定版本。
 
 ## 部署原理
@@ -139,6 +140,14 @@ npx serve dist -l 4016
 ### Q: 本仓 Pages 构建失败，报 `@innate/ui` 找不到？
 
 确认 `FE_TEMPLATES_REPO` 仓库变量和 `FE_TEMPLATES_TOKEN` 密钥已配置。若 `fe-templates` 是公开仓，token 可省略（使用 `github.token`）。
+
+如果日志是 `ERR_PNPM_FETCH_404 ... Failed to resolve @innate/ui@^0.1.0`，说明 pnpm 没有把 `@innate/ui` 链接到 sparse checkout 出来的 `packages/ui`，而是去 registry 找了一个从未发布的包。检查 workflow 里 `Install and build` 步骤追加 workspace 根设置的那两行是否还在：
+
+```bash
+printf '\nlinkWorkspacePackages: true\npreferWorkspacePackages: true\n' >> pnpm-workspace.yaml
+```
+
+pnpm 12 只从 workspace 根的 `pnpm-workspace.yaml` 读这两项设置：写在站点自己的 `pnpm-workspace.yaml` 里无效，写成 `npm_config_*` 环境变量也无效。
 
 ### Q: 如何只重新部署而不 push 代码？
 

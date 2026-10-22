@@ -1,5 +1,14 @@
 import type { PostMeta } from "./types"
 
+/**
+ * 统一换行符：Windows 检出（core.autocrlf=true）下 markdown 是 CRLF，
+ * 而 `.` 不匹配 \r、`$` 也不在 \r 前结束，直接按 "\n" 切行会让
+ * frontmatter 与标题匹配全部落空（标题退化成文件名）。
+ */
+function normalizeEol(content: string): string {
+  return content.replace(/\r\n/g, "\n")
+}
+
 function unquote(value: string): string {
   const trimmed = value.trim()
   if (
@@ -29,7 +38,7 @@ function parseYamlValue(raw: string): unknown {
 
 function parseYamlBlock(block: string): Record<string, unknown> {
   const data: Record<string, unknown> = {}
-  for (const line of block.split("\n")) {
+  for (const line of block.split(/\r?\n/)) {
     const match = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/)
     if (!match?.[1]) continue
     const parsed = parseYamlValue(match[2] ?? "")
@@ -39,9 +48,10 @@ function parseYamlBlock(block: string): Record<string, unknown> {
 }
 
 export function parseFrontmatter(content: string): { meta: PostMeta; body: string } {
-  // Windows 编辑器可能写入 BOM / CRLF：先剥 BOM，正则本身已兼容 \r\n。
-  const normalized = content.replace(/^﻿/, "")
-  const match = normalized.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
+  // Windows 检出（core.autocrlf=true）下是 CRLF，且可能带 BOM：
+  // 先剥 BOM、统一成 LF，后续按行匹配才不会整体落空。
+  const normalized = normalizeEol(content.replace(/^﻿/, ""))
+  const match = normalized.match(/^--- ?\n([\s\S]*?)\n--- ?\n?([\s\S]*)$/)
   const data = match?.[1] ? parseYamlBlock(match[1]) : {}
   const body = (match?.[2] ?? normalized).trim()
 
@@ -85,7 +95,7 @@ export function deriveExcerpt(content: string, maxLength = 120): string {
   const paragraph: string[] = []
   let inFence = false
 
-  for (const line of content.split("\n")) {
+  for (const line of normalizeEol(content).split("\n")) {
     if (/^\s*(```|~~~)/.test(line)) {
       if (paragraph.length > 0) break
       inFence = !inFence
@@ -124,7 +134,7 @@ export function extractToc(
   content: string
 ): Array<{ level: number; text: string; id: string }> {  const headings: Array<{ level: number; text: string; id: string }> = []
   const seenIds = new Map<string, number>()
-  const lines = content.split("\n")
+  const lines = normalizeEol(content).split("\n")
 
   for (const line of lines) {
     const heading = line.match(/^(#{2,3})\s+(.+)$/)
@@ -158,7 +168,8 @@ export function parseMatter(raw: string): {
   data: Record<string, unknown>
   content: string
 } {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
+  const normalized = normalizeEol(raw)
+  const match = normalized.match(/^--- ?\n([\s\S]*?)\n--- ?\n?([\s\S]*)$/)
   if (!match?.[1]) return { data: {}, content: raw }
   return { data: parseYamlBlock(match[1]), content: match[2] ?? "" }
 }
