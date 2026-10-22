@@ -1,4 +1,4 @@
-# daily-work — Writing 静态站（@innate/wip）
+# daily-work — Writing 静态站（@innate/daily）
 
 Vite + React 19 + TanStack Router（hash 路由）的写作内容浏览工作台。位于 `apps/daily-work/`。
 
@@ -7,10 +7,10 @@ Vite + React 19 + TanStack Router（hash 路由）的写作内容浏览工作台
 在 **fe-templates 根**（workspace 能解析 `@innate/ui`）：
 
 ```bash
-pnpm --filter @innate/wip dev
+pnpm --filter @innate/daily dev
 # → http://localhost:4016/#/   聚合本仓 content/ + docs/ + use-cases/
 
-VITE_WRITING_SOURCE=docs pnpm --filter @innate/wip dev
+VITE_WRITING_SOURCE=docs pnpm --filter @innate/daily dev
 # 仅 docs 模式：只内联本仓 docs/ 目录
 ```
 
@@ -34,11 +34,11 @@ VITE_WRITING_SOURCE=docs pnpm --filter @innate/wip dev
 ## 命令
 
 ```bash
-pnpm --filter @innate/wip dev            # dev（4016）；docs 模式见上
-pnpm --filter @innate/wip build          # vite build + 404 兜底 → dist/
-pnpm --filter @innate/wip preview        # 预览 dist
-pnpm --filter @innate/wip typecheck      # tsc --noEmit
-pnpm --filter @innate/wip lint           # oxlint src
-pnpm --filter @innate/wip test           # vitest run
+pnpm --filter @innate/daily dev            # dev（4016）；docs 模式见上
+pnpm --filter @innate/daily build          # vite build + 404 兜底 → dist/
+pnpm --filter @innate/daily preview        # 预览 dist
+pnpm --filter @innate/daily typecheck      # tsc --noEmit
+pnpm --filter @innate/daily lint           # oxlint src
+pnpm --filter @innate/daily test           # vitest run
 node scripts/write-content-index.mjs     # 刷新 site/ 静态输出
 ```

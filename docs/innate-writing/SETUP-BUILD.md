@@ -9,7 +9,7 @@
 >
 > **GitHub Pages 部署已修复并验证（2026-10-21）** ✅：旧模板仓 `innate-fe-templates` 已删除导致 CI 404；
 > 已把 workflow 默认源与仓库变量 `FE_TEMPLATES_REPO` 指向 `variableway/innate-fe`，并给注入式安装加
-> `--no-frozen-lockfile`（提交 `2787428`）。部署全绿，https://variableway.github.io/innate-wip/ 已上线新内容。
+> `--no-frozen-lockfile`（提交 `2787428`）。部署全绿，https://variableway.github.io/innate-daily/ 已上线新内容。
 > 注意：本地私源专用文件（`package.json` 的 `^0.1.0`、`.npmrc`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`）
 > **不要提交**——CI 依赖已提交的 `workspace:*` 走 base 仓工作区安装。
 >
@@ -47,9 +47,9 @@ D:\innate-workspace\
 │  ├─ bin\innate-fe-cli.exe        ← 编译出的 binary
 │  ├─ packages\ui\                 ← @innate/ui（本仓需要的 UI 包）
 │  └─ shells\webshell\             ← 壳
-└─ apps\daily-work\                ← 本仓（GitHub: variableway/innate-wip），独立 git 仓库
+└─ apps\daily-work\                ← 本仓（GitHub: variableway/innate-daily），独立 git 仓库
    ├─ plugin.registry.yaml         ← 文稿仓标记（单数，protocol: innate.domain-pages.v1）
-   └─ package.json                 ← @innate/wip，依赖 "@innate/ui": "workspace:*"（已断）
+   └─ package.json                 ← @innate/daily，依赖 "@innate/ui": "workspace:*"（已断）
 ```
 
 全局命令 `innate-fe-cli` 实际是 `C:\Users\anyda\.local\bin\innate-fe-cli`，即 `framework\innate-fe\bin\innate-fe-cli.exe` 的拷贝。
@@ -71,7 +71,7 @@ D:\innate-workspace\
 - `node_modules/@innate/ui` → 符号链接指向 `D:\innate-spark\base\innate-fe-base\packages\ui`（旧路径，仓库迁移后已不存在）→ vite resolve 不到。
 - `@innate/ui` 是**TS 源码包**（`main`/`exports` 都指向 `src/*.ts`），它自己的 dependencies 需要由包管理器安装到本仓 node_modules，手动补链接补不齐。
 
-参考：本仓 CI（`.github/workflows/deploy-pages.yml`）目前的做法是 sparse checkout `variableway/innate-fe-templates` 仓的 `packages/ui` + `packages/tsconfig` + workspace 文件，把本仓挪进 `apps/daily-work`，**借 templates 仓的 workspace** 执行 `pnpm install --filter @innate/wip...` 后构建。本地不需要这么绕，见下面路线。
+参考：本仓 CI（`.github/workflows/deploy-pages.yml`）目前的做法是 sparse checkout `variableway/innate-fe-templates` 仓的 `packages/ui` + `packages/tsconfig` + workspace 文件，把本仓挪进 `apps/daily-work`，**借 templates 仓的 workspace** 执行 `pnpm install --filter @innate/daily...` 后构建。本地不需要这么绕，见下面路线。
 
 ---
 

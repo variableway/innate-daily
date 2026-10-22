@@ -7,7 +7,7 @@ template:
   shell: writing-shell.zip
 
 site:
-  title: Innate WIP
+  title: Innate Daily
   defaultPath: /
   home: ./pages/home.md
 

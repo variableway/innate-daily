@@ -1,6 +1,6 @@
 # innate-writing — daily-work 项目技术文档
 
-`apps/daily-work/`（`@innate/wip`）的技术说明文档。
+`apps/daily-work/`（`@innate/daily`）的技术说明文档。
 
 ## 文档索引
 

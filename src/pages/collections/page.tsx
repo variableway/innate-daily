@@ -4,10 +4,9 @@ import {
   getAllCollections,
   getUniqueCategories,
   getUniqueSources,
-  getUniqueTags,
 } from "../../lib/collections/data"
 
-/** /collections：卡片网格 → 选中后左列表 + 右 iframe 预览。筛选落在 URL 上。 */
+/** /collections：与 /writing 同构的 侧栏筛选 + 列表 + iframe 查看器。筛选落在 URL 上。 */
 export function CollectionsPage() {
   const search = useSearch({ from: "/collections" })
   const navigate = useNavigate({ from: "/collections" })
@@ -16,7 +15,6 @@ export function CollectionsPage() {
     <CollectionsPageClient
       collections={getAllCollections()}
       categories={getUniqueCategories()}
-      tags={getUniqueTags()}
       sources={getUniqueSources()}
       filters={{
         category: search.category,

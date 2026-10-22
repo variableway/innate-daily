@@ -64,8 +64,8 @@ jobs:
           mv ../site apps/daily-work
           # daily-work 是运行时注入的 workspace 项目，base 仓 lockfile 没有它的 importer；
           # CI 下 pnpm 默认 frozen-lockfile 会拒绝，放行让 runner 内重新解析（不回写仓库）
-          pnpm install --filter @innate/wip... --no-frozen-lockfile
-          PUBLIC_PATH=./ pnpm --filter @innate/wip build
+          pnpm install --filter @innate/daily... --no-frozen-lockfile
+          PUBLIC_PATH=./ pnpm --filter @innate/daily build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
