@@ -3,7 +3,7 @@
     {
       "id": "innate-daily",
       "title": "Innate Daily — 日常写作与 Collections 工作台",
-      "description": "Vite + React + TanStack Router 的个人写作站：首页是 Plaza 卡片墙（点卡片进列表 + 正文），左侧目录 / 分类侧栏可折叠，Collections 收录站点并内嵌预览；封面为按标题确定性生成的 SVG，整站走 token 主题。",
+      "description": "Vite + React + TanStack Router 的个人写作站：首页是 Plaza 卡片墙（点卡片进列表 + 正文），左侧目录 / 分类侧栏可折叠，Collections 收录站点并内嵌预览；封面为各站点首屏实拍截图，整站走 token 主题。",
       "url": "https://variableway.github.io/innate-daily/",
       "repo": "https://github.com/variableway/innate-daily",
       "repoVisibility": "public",
@@ -41,7 +41,7 @@
     {
       "id": "guanzhan-zhi",
       "title": "随意上海 — 上海城市文化探索指南",
-      "description": "以「随意上海」为主题的城市文化探索站：观展志追踪沪上主要美术馆展览动态，演艺指南汇总话剧、音乐剧、舞剧、戏剧与戏曲演出，银幕上海关注电影节、影展与电影博物馆特展，另有教堂建筑巡礼与城市漫步路线，从展览、电影、教堂、街道多个切面发现上海。",
+      "description": "以「随意上海」为主题的城市文化探索站，六个板块从展览、演出、电影、教堂、街道多个切面发现上海：观展志追踪沪上主要美术馆展览动态，演艺指南汇总话剧、音乐剧、舞剧、歌剧与戏曲演出，银幕上海关注电影节、影展与电影博物馆特展，教堂建筑做哥特式、拜占庭式、中西合璧建筑巡礼，城市漫步覆盖西岸 / 外滩 / 梧桐区路线，上海街唱记录街头音乐现场。",
       "url": "https://i5cncju7yscwm.ok.kimi.link",
       "source": "kimi",
       "category": "随意日常",
