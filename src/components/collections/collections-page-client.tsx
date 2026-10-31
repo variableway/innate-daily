@@ -6,19 +6,6 @@ import {
   type ComponentProps,
   type Ref,
 } from "react"
-import { useNavigate } from "@tanstack/react-router"
-import {
-  Globe,
-  Layers,
-  Package,
-  PanelLeft,
-  PanelLeftClose,
-  PanelLeftOpen,
-  PenLine,
-  Search,
-  Star,
-  type LucideIcon,
-} from "lucide-react"
 import {
   Button,
   Empty,
@@ -49,12 +36,31 @@ import {
   cn,
   useIsMobile,
 } from "@innate/ui"
+import { useNavigate } from "@tanstack/react-router"
 import type { CollectionItem } from "../../lib/collections/types"
 import { CollectionsList } from "./collections-list"
+import { CollectionsCards } from "./collections-cards"
 import { CollectionViewer } from "./collection-viewer"
+import { AppSwitcher } from "../app-switcher"
+import { PanelIcon } from "../panel-icon"
+import { LayoutCapsule, type LayoutMode } from "../layout-capsule"
+import {
+  SoftGlobe,
+  SoftLayers,
+  SoftSearch,
+  SoftStar,
+  type SoftIcon,
+} from "../icons/soft-icons"
 import { labelColorValue } from "../../lib/writing/label-color"
+import { prettyLabel } from "../../lib/writing/pretty-label"
+import { sourceIcon, sourceLabel } from "../../lib/collections/source"
 import { categoryMeta } from "../../lib/writing/category-meta"
+import { getWritingMeta } from "../../lib/content"
+import type { WritingPost } from "../../lib/content/parse-post"
 import { useMediaQuery } from "../../lib/use-media-query"
+
+/** 侧栏最多两个 recent 列表（Recent items / Recent notes），每个最多 5 条。 */
+const RECENT_LIMIT = 5
 
 /** 筛选状态由 URL search params 承载（见 router.tsx 的 validateCollectionsSearch），
     与 /writing 列表同一套交互模型，可从外链直接带筛选进入。 */
@@ -90,7 +96,12 @@ export function CollectionsPageClient({
   onFiltersChange,
 }: CollectionsPageClientProps) {
   // collections 已由 data.ts 按日期倒序，「最近」段直接取前 5 条（与 /writing 一致）。
-  const recent = useMemo(() => collections.slice(0, 5), [collections])
+  const recent = useMemo(() => collections.slice(0, RECENT_LIMIT), [collections])
+  // 日常笔记同样按日期倒序，取最新 5 条；点进去深链到 /writing?slug=。
+  const recentNotes = useMemo(
+    () => getWritingMeta({ status: "published" }).slice(0, RECENT_LIMIT),
+    []
+  )
   const isMobile = useIsMobile()
   const isWide = useMediaQuery("(min-width: 1280px)")
   const navigate = useNavigate()
@@ -102,6 +113,8 @@ export function CollectionsPageClient({
   const [activeId, setActiveId] = useState(collections[0]?.id ?? "")
   const [mobileDetail, setMobileDetail] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  // 条目区展示形态：默认卡片墙，胶囊可切到紧凑列表（与 /writing 的 Plaza 同款交互）。
+  const [stage, setStage] = useState<LayoutMode>("cards")
   const navPanelRef = useRef<NavPanelHandle | null>(null)
   const [navCollapsed, setNavCollapsed] = useState(false)
 
@@ -186,6 +199,7 @@ export function CollectionsPageClient({
       }))}
       activeId={activeId}
       recent={recent}
+      recentNotes={recentNotes}
       filterCategory={filterCategory}
       filterSource={filterSource}
       filterFeatured={filterFeatured}
@@ -211,8 +225,9 @@ export function CollectionsPageClient({
         selectItem(id)
         setNavOpen(false)
       }}
-      onOpenWriting={() => {
-        navigate({ to: "/writing", search: {} })
+      onOpenNote={(slug) => {
+        // 深链到日常：?slug= 会让 /writing 直接打开那一篇。
+        navigate({ to: "/writing", search: { slug } })
         setNavOpen(false)
       }}
     />
@@ -234,7 +249,7 @@ export function CollectionsPageClient({
                 />
               }
             >
-              <PanelLeft />
+              <PanelIcon />
             </SheetTrigger>
             <SheetContent side="left" className="w-72 gap-0 p-0">
               <SheetHeader className="sr-only">
@@ -262,7 +277,7 @@ export function CollectionsPageClient({
               }
             }}
           >
-            {navCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+            <PanelIcon collapsed={navCollapsed} />
           </Button>
           <Select
             value={filterCategory ?? ""}
@@ -282,37 +297,51 @@ export function CollectionsPageClient({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">
-                <Globe className="size-4" data-icon />
+                <SoftGlobe className="size-4" data-icon />
                 All Items
               </SelectItem>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
-                  <Layers className="size-4" data-icon />
+                  <SoftLayers className="size-4" data-icon />
                   {category}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <span className="text-muted-foreground text-xs tabular-nums">
-          {filteredCollections.length}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-muted-foreground text-xs tabular-nums">
+            {filteredCollections.length}
+          </span>
+          <LayoutCapsule mode={stage} onChange={setStage} />
+        </div>
       </div>
       <ScrollArea className="min-h-0 flex-1">
         {filteredCollections.length > 0 ? (
-          <CollectionsList
-            items={filteredCollections}
-            activeId={activeId}
-            onSelect={selectItem}
-            onTagClick={(tag) => {
-              onFiltersChange({ tag })
-            }}
-          />
+          stage === "cards" ? (
+            <CollectionsCards
+              items={filteredCollections}
+              activeId={activeId}
+              onSelect={selectItem}
+              onTagClick={(tag) => {
+                onFiltersChange({ tag })
+              }}
+            />
+          ) : (
+            <CollectionsList
+              items={filteredCollections}
+              activeId={activeId}
+              onSelect={selectItem}
+              onTagClick={(tag) => {
+                onFiltersChange({ tag })
+              }}
+            />
+          )
         ) : (
           <Empty className="h-full border-0">
             <EmptyHeader>
               <EmptyMedia variant="icon">
-                <Globe />
+                <SoftGlobe />
               </EmptyMedia>
               <EmptyTitle>No items match</EmptyTitle>
               <EmptyDescription>
@@ -352,7 +381,7 @@ export function CollectionsPageClient({
         <Empty className="h-full border-0">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <Globe />
+              <SoftGlobe />
             </EmptyMedia>
             <EmptyTitle>Select an item</EmptyTitle>
             <EmptyDescription>
@@ -433,6 +462,7 @@ function CollectionsNav({
   sources,
   activeId,
   recent,
+  recentNotes,
   filterCategory,
   filterSource,
   filterFeatured,
@@ -443,7 +473,7 @@ function CollectionsNav({
   onSelectSource,
   onSelectFeatured,
   onSelectRecent,
-  onOpenWriting,
+  onOpenNote,
 }: {
   total: number
   featuredCount: number
@@ -451,6 +481,7 @@ function CollectionsNav({
   sources: Array<{ id: string; count: number }>
   activeId: string
   recent: CollectionItem[]
+  recentNotes: WritingPost[]
   filterCategory: string | null
   filterSource: string | null
   filterFeatured: boolean
@@ -461,7 +492,7 @@ function CollectionsNav({
   onSelectSource: (id: string) => void
   onSelectFeatured: () => void
   onSelectRecent: (id: string) => void
-  onOpenWriting: () => void
+  onOpenNote: (slug: string) => void
 }) {
   return (
     <nav
@@ -469,8 +500,7 @@ function CollectionsNav({
       className="bg-sidebar text-sidebar-foreground flex h-full min-h-0 flex-col"
     >
       <div className="flex h-12 shrink-0 items-center gap-2 px-4">
-        <Layers className="size-4" data-icon />
-        <span className="text-sm font-semibold">Collections</span>
+        <AppSwitcher />
         <div className="ml-auto">
           <ThemeSelector />
         </div>
@@ -478,7 +508,7 @@ function CollectionsNav({
       <div className="px-3 pb-3">
         <InputGroup>
           <InputGroupAddon>
-            <Search />
+            <SoftSearch />
           </InputGroupAddon>
           <InputGroupInput
             id="collections-search"
@@ -495,14 +525,14 @@ function CollectionsNav({
       <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-4 px-2 pb-4">
           <NavRow
-            icon={Globe}
+            icon={SoftGlobe}
             label="All Items"
             count={total}
             active={!filterCategory && !filterSource && !filterFeatured}
             onClick={onShowAll}
           />
           <NavRow
-            icon={Star}
+            icon={SoftStar}
             label="Featured"
             count={featuredCount}
             active={filterFeatured && !filterCategory && !filterSource}
@@ -512,23 +542,21 @@ function CollectionsNav({
           {sources.map((source) => (
             <NavRow
               key={source.id}
-              icon={Package}
-              label={source.id}
+              icon={sourceIcon(source.id)}
+              label={sourceLabel(source.id)}
               count={source.count}
               active={filterSource === source.id}
               onClick={() => onSelectSource(source.id)}
             />
           ))}
           <Separator className="mx-2" />
-          {/* Writing 入口：与 /writing 侧栏的 Collections 行互为镜像 */}
-          <NavRow icon={PenLine} label="Notes" active={false} onClick={onOpenWriting} />
           <SectionLabel>Categories</SectionLabel>
           <ul className="flex flex-col gap-0.5">
             {categories.map((category) => (
               <li key={category.id}>
                 <NavRow
                   icon={categoryMeta(category.id).icon}
-                  label={category.id}
+                  label={prettyLabel(category.id)}
                   count={category.count}
                   active={filterCategory === category.id}
                   onClick={() => onSelectCategory(category.id)}
@@ -559,6 +587,26 @@ function CollectionsNav({
               </ul>
             </>
           ) : null}
+          {recentNotes.length > 0 ? (
+            <>
+              <Separator className="mx-2" />
+              <SectionLabel>Recent notes</SectionLabel>
+              <ul className="flex flex-col gap-0.5">
+                {recentNotes.map((post) => (
+                  <li key={post.slug}>
+                    <button
+                      type="button"
+                      onClick={() => onOpenNote(post.slug)}
+                      title={post.title}
+                      className="hover:bg-sidebar-accent w-full truncate rounded-md px-2 py-1.5 text-left text-[13px]"
+                    >
+                      {post.title}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
         </div>
       </ScrollArea>
     </nav>
@@ -581,7 +629,7 @@ function NavRow({
   onClick,
   iconColor,
 }: {
-  icon: LucideIcon
+  icon: SoftIcon
   label: string
   count?: number
   active: boolean
@@ -594,7 +642,7 @@ function NavRow({
       onClick={onClick}
       data-active={active}
       className={cn(
-        "hover:bg-sidebar-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm capitalize",
+        "hover:bg-sidebar-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm",
         "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium"
       )}
     >

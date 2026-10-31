@@ -43,6 +43,7 @@ export function WritingPage() {
     <BlogPageClient
       posts={list}
       filters={search}
+      initialSlug={search.slug}
       onFiltersChange={(next) => {
         // search params 不接受 null：空值统一转成 undefined（即从 URL 移除）。
         navigate({

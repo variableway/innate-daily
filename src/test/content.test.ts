@@ -5,18 +5,12 @@ import { deriveExcerpt, parseFrontmatter } from "../lib/content/parser"
 import { fallbackSlug, parseWritingFile } from "../lib/content/parse-post"
 
 describe("writing content vault", () => {
-  it("bundles local content, docs, and use-cases markdown by default", () => {
+  it("bundles the docs tree as the single content root", () => {
     const posts = getWritingMeta({ status: "published" })
     const files = Object.keys(writingFiles)
     expect(files.length).toBeGreaterThan(0)
-    expect(
-      files.every(
-        (filePath) =>
-          filePath.includes("/content/") ||
-          filePath.includes("/docs/") ||
-          filePath.includes("/use-cases/")
-      )
-    ).toBe(true)
+    // 文档根已统一为 docs/：不再从仓库根的 content/ 或 use-cases/ 读取。
+    expect(files.every((filePath) => filePath.includes("/docs/"))).toBe(true)
     expect(posts.length).toBeGreaterThan(0)
     expect(posts.every((post) => post.slug && post.title)).toBe(true)
     expect(
@@ -29,11 +23,14 @@ describe("writing content vault", () => {
     ).toBe(true)
   })
 
-  it("loads demo content posts with content vault metadata", () => {
-    const post = getWritingMeta().find((item) => item.slug.includes("demo-charts"))
-    expect(post?.title).toMatch(/Charts & Diagrams with Mermaid/)
-    expect(post?.vault).toBe("content")
-    expect(post?.folder).toBe("demo")
+  it("derives vault and folder from the docs directory layout", () => {
+    const posts = getWritingMeta()
+    // docs/content/research/ui/** → vault content
+    const content = posts.find((post) => post.vault === "content")
+    expect(content?.folder).toBe("research/ui")
+    // docs/use-cases/** → vault use-cases
+    const useCase = posts.find((post) => post.vault === "use-cases")
+    expect(useCase?.folder).toMatch(/^(build-it-own|toolchain)$/)
   })
 })
 
@@ -73,6 +70,22 @@ describe("nested path fallbacks", () => {
     expect(post.vault).toBe("content")
     expect(post.folder).toBe("demo/nested/deep")
     expect(post.slug).toBe("content-demo-nested-deep-note")
+  })
+
+  it("derives the category from the directory and keeps the frontmatter one aside", () => {
+    const post = parseWritingFile(
+      "/repo/docs/content/research/ui/note.md",
+      "---\ntitle: X\ncategory: guide\n---\nHi\n"
+    )
+    // 分类按目录推导（「目录即分类」），frontmatter 的 category 只留作参考。
+    expect(post.category).toBe("research")
+    expect(post.metaCategory).toBe("guide")
+  })
+
+  it("falls back to the vault when the file sits at the vault root", () => {
+    const post = parseWritingFile("/repo/docs/content/note.md", "# T\n")
+    expect(post.category).toBe("content")
+    expect(post.folder).toBe("")
   })
 })
 

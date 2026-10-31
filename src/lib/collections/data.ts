@@ -1,4 +1,5 @@
 import type { CollectionItem, CollectionsData } from "./types"
+import { COLLECTION_CATEGORIES } from "./types"
 import collectionsData from "../../data/collections.json"
 
 const data = collectionsData as CollectionsData
@@ -17,8 +18,9 @@ export function getUniqueSources(): string[] {
   return [...new Set(data.collections.map((c) => c.source))].sort()
 }
 
+/** 分类是固定的策展三类（工具效率 / 随意日常 / 教育），不随数据增减。 */
 export function getUniqueCategories(): string[] {
-  return [...new Set(data.collections.map((c) => c.category))].sort()
+  return [...COLLECTION_CATEGORIES]
 }
 
 export function getUniqueTags(): string[] {

@@ -36,4 +36,14 @@ describe("cover-art", () => {
     expect(svg).not.toMatch(/#[0-9a-fA-F]{3,6}/)
     expect(coverHash("research")).toBeGreaterThan(0)
   })
+
+  it("paints via inline style, never fill/stroke attributes (Safari falls back to black otherwise)", () => {
+    const svg = coverArtSvg("research")
+    expect(svg).not.toMatch(/<[^>]+\sfill="/)
+    expect(svg).not.toMatch(/<[^>]+\sstroke="/)
+    expect(svg).toContain('style="fill:oklch(var(--label-l) var(--label-c)')
+    // 透明度用 oklch(... / A)，不依赖 color-mix()（旧引擎支持更晚）。
+    expect(svg).not.toContain("color-mix(")
+    expect(svg).toContain("/ 0.08)")
+  })
 })

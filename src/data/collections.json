@@ -1,33 +1,57 @@
 {
   "collections": [
     {
+      "id": "innate-daily",
+      "title": "Innate Daily — 日常写作与 Collections 工作台",
+      "description": "Vite + React + TanStack Router 的个人写作站：首页是 Plaza 卡片墙（点卡片进列表 + 正文），左侧目录 / 分类侧栏可折叠，Collections 收录站点并内嵌预览；封面为按标题确定性生成的 SVG，整站走 token 主题。",
+      "url": "https://variableway.github.io/innate-daily/",
+      "repo": "https://github.com/variableway/innate-daily",
+      "repoVisibility": "public",
+      "source": "github",
+      "category": "工具效率",
+      "tags": [
+        "react",
+        "vite",
+        "writing",
+        "dashboard"
+      ],
+      "thumbnail": "collections-covers/innate-daily.webp",
+      "date": "2026-10-26",
+      "featured": true
+    },
+    {
       "id": "spark-cli",
       "title": "Spark CLI — 日常开发自动化与 AI Skill 后端",
       "description": "Go 编写的开发自动化 CLI：git 多仓管理、DNS / 镜像切换等确定性操作交给命令行，同时作为 AI skill 的 CLI 后端，替 agent 执行重复操作、省下 token。",
-      "url": "https://github.com/variableway/spark-cli",
-      "source": "other",
-      "category": "工具",
+      "url": "https://variableway.github.io/spark-cli/",
+      "repo": "https://github.com/variableway/spark-cli",
+      "repoVisibility": "public",
+      "source": "github",
+      "category": "工具效率",
       "tags": [
         "cli",
         "go",
         "automation",
         "devtools"
       ],
+      "thumbnail": "collections-covers/spark-cli.webp",
       "date": "2026-10-22",
       "featured": true
     },
     {
       "id": "guanzhan-zhi",
-      "title": "观展志 — 上海美术展会信息平台",
-      "description": "上海美术展会信息聚合平台，提供展会日程、场馆信息和观展指南。",
+      "title": "随意上海 — 上海城市文化探索指南",
+      "description": "以「随意上海」为主题的城市文化探索站：观展志追踪沪上主要美术馆展览动态，演艺指南汇总话剧、音乐剧、舞剧、戏剧与戏曲演出，银幕上海关注电影节、影展与电影博物馆特展，另有教堂建筑巡礼与城市漫步路线，从展览、电影、教堂、街道多个切面发现上海。",
       "url": "https://i5cncju7yscwm.ok.kimi.link",
       "source": "kimi",
-      "category": "工具",
+      "category": "随意日常",
       "tags": [
-        "art",
         "shanghai",
-        "exhibition"
+        "exhibition",
+        "citywalk",
+        "culture"
       ],
+      "thumbnail": "collections-covers/suiyi-shanghai.webp",
       "date": "2026-05-31",
       "featured": true
     }

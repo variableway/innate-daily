@@ -1,7 +1,8 @@
 import { useMemo } from "react"
 import { useNavigate } from "@tanstack/react-router"
-import { ArrowRight, PenLine } from "lucide-react"
+import { SoftArrowRight } from "../../components/icons/soft-icons"
 import { Badge, Button, ThemeSelector } from "@innate/ui"
+import { AppSwitcher } from "../../components/app-switcher"
 import { GalleryCard } from "../../components/landing/gallery-card"
 import {
   WritingEmptyState,
@@ -65,8 +66,10 @@ export function LandingPage() {
   return (
     <div className="bg-background flex h-full min-h-0 flex-col overflow-hidden">
       <header className="border-border flex h-12 shrink-0 items-center gap-2 border-b px-4 sm:px-6">
-        <PenLine className="size-4" data-icon />
-        <span className="text-sm font-semibold">Innate Notes</span>
+        <AppSwitcher />
+        <span className="text-muted-foreground hidden text-sm font-semibold sm:inline">
+          Innate Notes
+        </span>
         <div className="ml-auto">
           <ThemeSelector />
         </div>
@@ -90,7 +93,7 @@ export function LandingPage() {
                 onClick={() => navigate({ to: "/writing", search: {} })}
               >
                 进入全部笔记
-                <ArrowRight data-icon="inline-end" />
+                <SoftArrowRight data-icon="inline-end" />
               </Button>
             </div>
           </section>

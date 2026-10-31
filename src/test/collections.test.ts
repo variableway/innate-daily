@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest"
 import collectionsJson from "../data/collections.json"
-import type { CollectionItem, CollectionsData } from "../lib/collections/types"
+import {
+  COLLECTION_CATEGORIES,
+  type CollectionItem,
+  type CollectionsData,
+} from "../lib/collections/types"
 import {
   getAllCollections,
   getCollectionById,
@@ -10,7 +14,7 @@ import {
 } from "../lib/collections/data"
 
 const data = collectionsJson as CollectionsData
-const validSources = ["kimi", "feishu", "other"]
+const validSources = ["kimi", "feishu", "github"]
 
 describe("collections data integrity", () => {
   it("has at least one collection entry", () => {
@@ -30,8 +34,19 @@ describe("collections data integrity", () => {
       expect(item.url, `${item.id}: url`).toMatch(/^https?:\/\//)
       expect(validSources, `${item.id}: source ${item.source}`).toContain(item.source)
       expect(item.category, `${item.id}: category`).toBeTruthy()
+      expect(
+        COLLECTION_CATEGORIES as readonly string[],
+        `${item.id}: category must be one of the three curated categories`
+      ).toContain(item.category)
       expect(Array.isArray(item.tags), `${item.id}: tags`).toBe(true)
       expect(item.date, `${item.id}: date`).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      if (item.repo) {
+        expect(item.repo, `${item.id}: repo`).toMatch(/^https?:\/\//)
+        expect(
+          item.repoVisibility,
+          `${item.id}: repoVisibility`
+        ).toMatch(/^(public|private|unknown)$/)
+      }
     }
   })
 })
@@ -59,5 +74,11 @@ describe("collections data helpers", () => {
     expect(new Set(categories).size).toBe(categories.length)
     const tags = getUniqueTags()
     expect(new Set(tags).size).toBe(tags.length)
+  })
+
+  it("always exposes the three curated categories, even when one is empty", () => {
+    expect(getUniqueCategories()).toEqual(["工具效率", "随意日常", "教育"])
+    // 分类是固定策展的，不随条目增减。
+    expect(getUniqueCategories()).toHaveLength(COLLECTION_CATEGORIES.length)
   })
 })

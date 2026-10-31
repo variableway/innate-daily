@@ -11,17 +11,24 @@ import { LandingPage } from "./pages/landing/page"
 import { CollectionsPage } from "./pages/collections/page"
 import { CategoryMenu } from "./components/category-menu"
 
-/** /writing 列表的筛选状态全部落在 URL 上，可从 landing 画廊卡片直接带入。 */
+/** /writing 列表的筛选状态全部落在 URL 上，可从 landing 画廊卡片直接带入。
+    slug 是「深链入口」：从 Collections 的 Recent notes 跳过来时直接打开那一篇。 */
 export interface WritingSearch {
   folder?: string
   category?: string
   tag?: string
+  slug?: string
 }
 
-function validateWritingSearch(search: Record<string, unknown>): WritingSearch {
+export function validateWritingSearch(search: Record<string, unknown>): WritingSearch {
   const pick = (key: keyof WritingSearch) =>
     typeof search[key] === "string" && search[key] ? (search[key] as string) : undefined
-  return { folder: pick("folder"), category: pick("category"), tag: pick("tag") }
+  return {
+    folder: pick("folder"),
+    category: pick("category"),
+    tag: pick("tag"),
+    slug: pick("slug"),
+  }
 }
 
 /** /collections 的筛选同模型：source / category / tag / featured 四维独立开关。 */

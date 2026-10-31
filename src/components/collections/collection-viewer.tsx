@@ -1,7 +1,14 @@
 import { useState } from "react"
-import { ArrowLeft, ExternalLink, Loader2, Star } from "lucide-react"
+import { Loader2 } from "lucide-react"
+import {
+  SoftArrowLeft,
+  SoftExternalLink,
+  SoftGitBranch,
+  SoftStar,
+} from "../icons/soft-icons"
 import { Badge, Button } from "@innate/ui"
 import type { CollectionItem } from "../../lib/collections/types"
+import { collectionRepo, repoBadgeLabel, repoBadgeTitle } from "../../lib/collections/repo"
 import { categoryMeta } from "../../lib/writing/category-meta"
 import { labelChipStyle } from "../../lib/writing/label-color"
 
@@ -25,6 +32,7 @@ export function CollectionViewer({
 }: CollectionViewerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isError, setIsError] = useState(false)
+  const repo = collectionRepo(item)
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -37,7 +45,7 @@ export function CollectionViewer({
             onClick={onBack}
             className="mb-3 md:hidden"
           >
-            <ArrowLeft data-icon="inline-start" />
+            <SoftArrowLeft data-icon="inline-start" />
             Back
           </Button>
         ) : null}
@@ -72,9 +80,21 @@ export function CollectionViewer({
               variant="outline"
               className="border-transparent bg-primary/10 text-primary gap-0.5"
             >
-              <Star className="size-2.5" data-icon />
+              <SoftStar className="size-2.5" data-icon />
               Featured
             </Badge>
+          ) : null}
+          {repo ? (
+            <a
+              href={repo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={repoBadgeTitle(repo)}
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors"
+            >
+              <SoftGitBranch className="size-3" data-icon />
+              {repoBadgeLabel(repo)}
+            </a>
           ) : null}
         </div>
 
@@ -109,13 +129,24 @@ export function CollectionViewer({
               ))}
             </>
           ) : null}
+          {repo ? (
+            <a
+              href={repo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground ml-auto inline-flex items-center gap-1 text-sm underline-offset-2 hover:underline"
+            >
+              <SoftGitBranch className="h-3.5 w-3.5" data-icon />
+              查看仓库
+            </a>
+          ) : null}
           <a
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:text-primary/80 ml-auto inline-flex items-center gap-1 text-sm underline-offset-2 hover:underline"
+            className={`text-primary hover:text-primary/80 inline-flex items-center gap-1 text-sm underline-offset-2 hover:underline${repo ? "" : " ml-auto"}`}
           >
-            <ExternalLink className="h-3.5 w-3.5" data-icon />
+            <SoftExternalLink className="h-3.5 w-3.5" data-icon />
             Open site
           </a>
         </div>
@@ -136,7 +167,7 @@ export function CollectionViewer({
           {isError && (
             <div className="text-muted-foreground absolute inset-0 z-10 flex items-center justify-center">
               <div className="flex flex-col items-center gap-2">
-                <ExternalLink className="h-8 w-8 opacity-30" data-icon />
+                <SoftExternalLink className="h-8 w-8 opacity-30" data-icon />
                 <p className="text-sm">This site cannot be embedded</p>
                 <a
                   href={item.url}
@@ -144,7 +175,7 @@ export function CollectionViewer({
                   rel="noopener noreferrer"
                   className="text-primary hover:text-primary/80 flex items-center gap-1 text-xs"
                 >
-                  <ExternalLink className="h-3 w-3" />
+                  <SoftExternalLink className="h-3 w-3" />
                   Open in new tab
                 </a>
               </div>

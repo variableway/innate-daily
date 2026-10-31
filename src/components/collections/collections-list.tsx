@@ -1,5 +1,7 @@
 import { Badge, cn } from "@innate/ui"
+import { SoftGitBranch } from "../icons/soft-icons"
 import type { CollectionItem } from "../../lib/collections/types"
+import { collectionRepo, repoBadgeLabel, repoBadgeTitle } from "../../lib/collections/repo"
 import { categoryMeta } from "../../lib/writing/category-meta"
 import { labelChipStyle } from "../../lib/writing/label-color"
 
@@ -10,7 +12,7 @@ interface CollectionsListProps {
   onTagClick?: (tag: string) => void
 }
 
-/** 中列列表：与 /writing 的 BlogList 同款卡片语言（圆角卡片 + 选中 ring + label-chip 徽标）。 */
+/** 中列列表：与 /writing 的 Plaza 列表同款卡片语言（圆角卡片 + 选中 ring + label-chip 徽标）。 */
 export function CollectionsList({
   items,
   activeId,
@@ -21,6 +23,7 @@ export function CollectionsList({
     <div className="flex flex-col gap-2 p-3">
       {items.map((item) => {
         const isActive = activeId === item.id
+        const repo = collectionRepo(item)
         return (
           <button
             key={item.id}
@@ -60,6 +63,16 @@ export function CollectionsList({
               >
                 {item.category}
               </Badge>
+              {repo ? (
+                <Badge
+                  variant="outline"
+                  className="text-muted-foreground gap-1"
+                  title={repoBadgeTitle(repo)}
+                >
+                  <SoftGitBranch className="size-3" data-icon />
+                  {repoBadgeLabel(repo)}
+                </Badge>
+              ) : null}
               {item.tags.slice(0, 3).map((tag) => (
                 <Badge
                   key={tag}

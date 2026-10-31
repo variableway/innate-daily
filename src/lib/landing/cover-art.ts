@@ -44,14 +44,26 @@ export function coverHue(name: string): number {
   return labelHueIndex(name) * 15
 }
 
-function oklch(l: string, c: string, hue: number, alpha?: number): string {
-  const base = `oklch(${l} ${c} ${hue})`
-  return alpha === undefined ? base : `color-mix(in oklab, ${base} ${alpha}%, transparent)`
+/**
+ * SVG 里的颜色一律走行内 style，不走 fill/stroke 表现属性：
+ * 部分浏览器（WebKit/Safari）不解析 SVG 表现属性里的颜色函数，
+ * 解析失败会整体回落到默认黑色 —— 整张封面变成黑块。
+ * 行内 style 按普通 CSS 解析，各浏览器行为一致。
+ * 透明度用 oklch(L C H / A)，不依赖 color-mix()（旧引擎对后者支持更晚）。
+ */
+function oklch(hue: number, alpha?: number): string {
+  const base = `oklch(var(--label-l) var(--label-c) ${hue}`
+  return alpha === undefined ? `${base})` : `${base} / ${alpha})`
 }
 
-/** 明度/彩度跟随 globals.css 的 --label-l / --label-c，暗色模式自动适配。 */
-const L = "var(--label-l)"
-const C = "var(--label-c)"
+/** 填充 / 描边分别拼 style。 */
+function fillStyle(hue: number, alpha?: number): string {
+  return `fill:${oklch(hue, alpha)}`
+}
+
+function strokeStyle(hue: number, alpha?: number): string {
+  return `fill:none;stroke:${oklch(hue, alpha)}`
+}
 
 function wavesArt(hue: number, rand: () => number): string {
   const paths: string[] = []
@@ -60,9 +72,9 @@ function wavesArt(hue: number, rand: () => number): string {
     const amp = 18 + rand() * 22
     const phase = rand() * 400
     const d = `M -20 ${yBase} Q ${100 + phase * 0.2} ${yBase - amp}, 210 ${yBase} T 440 ${yBase}`
-    const opacity = 90 - i * 20
+    const opacity = (90 - i * 20) / 100
     paths.push(
-      `<path d="${d}" fill="none" stroke="${oklch(L, C, hue, opacity)}" stroke-width="${10 - i * 2}" stroke-linecap="round"/>`
+      `<path d="${d}" style="${strokeStyle(hue, opacity)}" stroke-width="${10 - i * 2}" stroke-linecap="round"/>`
     )
   }
   return paths.join("")
@@ -74,12 +86,12 @@ function arcsArt(hue: number, rand: () => number): string {
   const cy = 210 + rand() * 40
   for (let i = 0; i < 4; i += 1) {
     const r = 46 + i * 42
-    const opacity = 95 - i * 18
+    const opacity = (95 - i * 18) / 100
     arcs.push(
-      `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${oklch(L, C, hue, opacity)}" stroke-width="${12 - i * 2}"/>`
+      `<circle cx="${cx}" cy="${cy}" r="${r}" style="${strokeStyle(hue, opacity)}" stroke-width="${12 - i * 2}"/>`
     )
   }
-  arcs.push(`<circle cx="${cx}" cy="${cy}" r="14" fill="${oklch(L, C, hue)}"/>`)
+  arcs.push(`<circle cx="${cx}" cy="${cy}" r="14" style="${fillStyle(hue)}"/>`)
   return arcs.join("")
 }
 
@@ -91,10 +103,8 @@ function gridArt(hue: number, rand: () => number): string {
     for (let y = 0; y < rows; y += 1) {
       const hot = rand() > 0.82
       const r = hot ? 9 : 4
-      const fill = hot
-        ? oklch(L, C, hue)
-        : oklch(L, C, hue, 25)
-      dots.push(`<circle cx="${40 + x * 46}" cy="${38 + y * 46}" r="${r}" fill="${fill}"/>`)
+      const style = fillStyle(hue, hot ? undefined : 0.25)
+      dots.push(`<circle cx="${40 + x * 46}" cy="${38 + y * 46}" r="${r}" style="${style}"/>`)
     }
   }
   return dots.join("")
@@ -104,8 +114,13 @@ function gridArt(hue: number, rand: () => number): string {
  * 生成完整 SVG 字符串（viewBox 400x300，建议以 4:3 比例展示）。
  * 颜色全部使用 token 化的 oklch，不写死 hex，主题切换时跟随。
  * 传入 hueOverride 时使用策展固定色相（category-meta.ts），与图标/badge 同色。
+ * slice = true 时按容器裁切填满（preserveAspectRatio slice），用于卡片头图 / 缩略图。
  */
-export function coverArtSvg(name: string, hueOverride?: number | null): string {
+export function coverArtSvg(
+  name: string,
+  hueOverride?: number | null,
+  options?: { slice?: boolean }
+): string {
   const hue = hueOverride ?? coverHue(name)
   const rand = seededRandom(coverHash(name))
   const variant = coverArtVariant(name)
@@ -115,10 +130,10 @@ export function coverArtSvg(name: string, hueOverride?: number | null): string {
       : variant === "arcs"
         ? arcsArt(hue, rand)
         : gridArt(hue, rand)
-  const bg = oklch(L, C, hue, 8)
+  const preserve = options?.slice ? ' preserveAspectRatio="xMidYMid slice"' : ""
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="${name}">` +
-    `<rect width="400" height="300" fill="${bg}"/>` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="${name}"${preserve}>` +
+    `<rect width="400" height="300" style="${fillStyle(hue, 0.08)}"/>` +
     body +
     `</svg>`
   )
