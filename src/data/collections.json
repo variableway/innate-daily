@@ -54,7 +54,26 @@
       "thumbnail": "collections-covers/suiyi-shanghai.webp",
       "date": "2026-05-31",
       "featured": true
+    },
+    {
+      "id": "innate-feeds",
+      "title": "Innate Feeds — GitHub Trending 与 Starred 浏览器",
+      "description": "GitHub Trending / Starred 仓库浏览站，附 ruanyf/weekly、GitHubDaily 的社区 issues 摘要：支持语言、话题、快照日期、star 区间筛选与排序，仓库 README 站内渲染。静态模式部署在 GitHub Pages，预导出 JSON 兜底、浏览器端实时补拉 GitHub 数据；同一套同步脚本也支持 Hono + SQLite 的 API 模式自托管。React 19 + TanStack Router/Table + Tailwind v4。",
+      "url": "https://variableway.github.io/innate-feeds/",
+      "repo": "https://github.com/variableway/innate-feeds",
+      "repoVisibility": "public",
+      "source": "github",
+      "category": "工具效率",
+      "tags": [
+        "github",
+        "trending",
+        "feeds",
+        "react"
+      ],
+      "thumbnail": "collections-covers/innate-feeds.webp",
+      "date": "2026-10-31",
+      "featured": true
     }
   ],
-  "lastUpdated": "2026-10-22T02:30:00.000Z"
+  "lastUpdated": "2026-10-31T08:00:00.000Z"
 }
