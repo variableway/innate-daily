@@ -170,7 +170,7 @@ base 仓内置了一套本机私有源（`innate-fe-cli registry setup/start/pub
 
 ```bash
 # 发布侧
-export NPM_TOKEN=ghp_你的PAT      # scopes: write:packages（源仓库私有再加 repo）
+export NPM_TOKEN="<你的 GitHub PAT>"   # scopes: write:packages（源仓库私有再加 repo）
 innate-fe-cli registry publish --url https://npm.pkg.github.com --publish-as @variableway --token "$NPM_TOKEN"
 
 # 安装侧（token scopes: read:packages）
