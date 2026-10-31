@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { BookOpen, FlaskConical, Folder, Lightbulb } from "lucide-react"
+import {
+  SoftBook,
+  SoftFlask,
+  SoftFolder,
+  SoftLightbulb,
+} from "../components/icons/soft-icons"
 import { categoryMeta, folderMeta } from "../lib/writing/category-meta"
 import { labelColorValue } from "../lib/writing/label-color"
 
 describe("category-meta", () => {
   it("returns curated icon and fixed hue for known categories", () => {
-    expect(categoryMeta("research")).toEqual({ icon: FlaskConical, hue: 300 })
-    expect(categoryMeta("insight").icon).toBe(Lightbulb)
+    expect(categoryMeta("research")).toEqual({ icon: SoftFlask, hue: 300 })
+    expect(categoryMeta("insight").icon).toBe(SoftLightbulb)
   })
 
   it("is case-insensitive", () => {
@@ -15,14 +20,14 @@ describe("category-meta", () => {
 
   it("falls back to neutral icon and hash hue for unknown categories", () => {
     const meta = categoryMeta("some-new-category")
-    expect(meta.icon).toBe(BookOpen)
+    expect(meta.icon).toBe(SoftBook)
     expect(meta.hue).toBeNull()
   })
 
   it("folderMeta prefers folder table, falls back to category table, then Folder", () => {
     expect(folderMeta("ui").hue).toBe(300)
     expect(folderMeta("weekly").icon).toBe(categoryMeta("weekly").icon)
-    expect(folderMeta("random-folder").icon).toBe(Folder)
+    expect(folderMeta("random-folder").icon).toBe(SoftFolder)
   })
 
   it("hue override wins over hash in labelColorValue", () => {

@@ -9,7 +9,7 @@ import {
   EmptyTitle,
   Skeleton,
 } from "@innate/ui"
-import { FileText } from "lucide-react"
+import { SoftFileText } from "../icons/soft-icons"
 
 export function WritingLoadingState() {
   return (
@@ -35,7 +35,7 @@ export function WritingEmptyState({ message }: { message: string }) {
     <Empty className="h-full border-0">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <FileText />
+          <SoftFileText />
         </EmptyMedia>
         <EmptyTitle>No notes</EmptyTitle>
         <EmptyDescription>{message}</EmptyDescription>

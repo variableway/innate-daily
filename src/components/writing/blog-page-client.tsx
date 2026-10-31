@@ -8,16 +8,6 @@ import {
 } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import {
-  FileText,
-  Folder,
-  Layers,
-  PanelLeft,
-  PanelLeftClose,
-  PanelLeftOpen,
-  PenLine,
-  Search,
-} from "lucide-react"
-import {
   Button,
   Empty,
   EmptyDescription,
@@ -47,9 +37,18 @@ import {
   cn,
   useIsMobile,
 } from "@innate/ui"
-import { BlogList, type BlogListItem } from "./blog-list"
 import { BlogViewer } from "./blog-viewer"
 import { FolderNav } from "./folder-nav"
+import { Plaza, PlazaLayoutCapsule, type PlazaMode } from "./plaza"
+import { AppSwitcher } from "../app-switcher"
+import { PanelIcon } from "../panel-icon"
+import {
+  SoftFileText,
+  SoftFolder,
+  SoftLayers,
+  SoftSearch,
+  type SoftIcon,
+} from "../icons/soft-icons"
 import {
   countByCategory,
   filterWritingPosts,
@@ -57,7 +56,9 @@ import {
 } from "../../lib/writing/filter-posts"
 import { buildFolderTree } from "../../lib/writing/folder-tree"
 import { labelColorValue } from "../../lib/writing/label-color"
+import { prettyLabel } from "../../lib/writing/pretty-label"
 import { categoryMeta } from "../../lib/writing/category-meta"
+import type { BlogListItem } from "../../lib/writing/post-item"
 import { getAllCollections } from "../../lib/collections/data"
 import { useMediaQuery } from "../../lib/use-media-query"
 
@@ -72,6 +73,8 @@ interface BlogPageClientProps {
   posts: BlogPostFull[]
   /** 筛选状态由 URL search params 承载（见 router.tsx 的 validateWritingSearch）。 */
   filters: WritingListFilter
+  /** 深链入口：URL 上的 ?slug=，进来就直接打开那一篇（列表 + 正文）。 */
+  initialSlug?: string
   onFiltersChange: (next: WritingListFilter) => void
 }
 
@@ -84,6 +87,7 @@ type NavPanelHandle = NonNullable<
 export function BlogPageClient({
   posts,
   filters,
+  initialSlug,
   onFiltersChange,
 }: BlogPageClientProps) {
   const isMobile = useIsMobile()
@@ -93,9 +97,11 @@ export function BlogPageClient({
   const filterTag = filters.tag ?? null
   const filterCategory = filters.category ?? null
   const filterFolder = filters.folder ?? null
-  const [activeSlug, setActiveSlug] = useState(posts[0]?.slug ?? "")
+  const [activeSlug, setActiveSlug] = useState(initialSlug ?? posts[0]?.slug ?? "")
   const [mobileDetail, setMobileDetail] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  /** 内容区模式：默认卡片墙，点进某篇后切到列表（源站首页的两种形态）。 */
+  const [stage, setStage] = useState<PlazaMode>(initialSlug ? "list" : "cards")
   const navPanelRef = useRef<NavPanelHandle | null>(null)
   const [navCollapsed, setNavCollapsed] = useState(false)
   const collectionsCount = useMemo(() => getAllCollections().length, [])
@@ -132,6 +138,13 @@ export function BlogPageClient({
     }
   }, [filteredPosts, activeSlug])
 
+  // 深链进来（?slug=）时直接切到列表 + 正文。
+  useEffect(() => {
+    if (!initialSlug) return
+    setActiveSlug(initialSlug)
+    setStage("list")
+  }, [initialSlug])
+
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
@@ -147,7 +160,14 @@ export function BlogPageClient({
 
   function selectPost(slug: string) {
     setActiveSlug(slug)
+    // 点进一篇 = 从卡片墙切到列表（阅读态）。
+    setStage("list")
     if (isMobile) setMobileDetail(true)
+  }
+
+  function changeStage(next: PlazaMode) {
+    setStage(next)
+    if (next === "cards") setMobileDetail(false)
   }
 
   function showAll() {
@@ -197,118 +217,140 @@ export function BlogPageClient({
     />
   )
 
-  const listPane = (
-    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-background">
-      <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
-        <div className="flex min-w-0 items-center gap-1">
-          <Sheet open={navOpen} onOpenChange={setNavOpen}>
-            <SheetTrigger
-              render={
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="xl:hidden"
-                  aria-label="Open navigation"
-                />
-              }
-            >
-              <PanelLeft />
-            </SheetTrigger>
-            <SheetContent side="left" className="w-72 gap-0 p-0">
-              <SheetHeader className="sr-only">
-                <SheetTitle>Writing</SheetTitle>
-              </SheetHeader>
-              <div className="flex h-full min-h-0 flex-col">{sidebar}</div>
-            </SheetContent>
-          </Sheet>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            className="hidden xl:inline-flex"
-            aria-label={navCollapsed ? "Expand navigation" : "Collapse navigation"}
-            aria-expanded={!navCollapsed}
-            onClick={() => {
-              const panel = navPanelRef.current
-              if (!panel) return
-              if (panel.isCollapsed()) {
-                panel.expand()
-                setNavCollapsed(false)
-              } else {
-                panel.collapse()
-                setNavCollapsed(true)
-              }
-            }}
+  const emptyState = (
+    <Empty className="h-full border-0">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <SoftFileText />
+        </EmptyMedia>
+        <EmptyTitle>No notes match</EmptyTitle>
+        <EmptyDescription>Try another search, category, or tag.</EmptyDescription>
+      </EmptyHeader>
+      <Button type="button" variant="ghost" size="sm" onClick={showAll}>
+        Clear filters
+      </Button>
+    </Empty>
+  )
+
+  const stageHeader = (
+    <div className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
+      <div className="flex min-w-0 items-center gap-1">
+        <Sheet open={navOpen} onOpenChange={setNavOpen}>
+          <SheetTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="xl:hidden"
+                aria-label="Open navigation"
+              />
+            }
           >
-            {navCollapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
-          </Button>
-          <Select
-            value={filterFolder ?? ""}
-            onValueChange={(value: string | null) => {
-              if (value) {
-                onFiltersChange({ folder: value })
-              } else {
-                showAll()
-              }
-            }}
+            <PanelIcon />
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72 gap-0 p-0">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Writing</SheetTitle>
+            </SheetHeader>
+            <div className="flex h-full min-h-0 flex-col">{sidebar}</div>
+          </SheetContent>
+        </Sheet>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="hidden xl:inline-flex"
+          aria-label={navCollapsed ? "Expand navigation" : "Collapse navigation"}
+          aria-expanded={!navCollapsed}
+          onClick={() => {
+            const panel = navPanelRef.current
+            if (!panel) return
+            if (panel.isCollapsed()) {
+              panel.expand()
+              setNavCollapsed(false)
+            } else {
+              panel.collapse()
+              setNavCollapsed(true)
+            }
+          }}
+        >
+          <PanelIcon collapsed={navCollapsed} />
+        </Button>
+        <Select
+          value={filterFolder ?? ""}
+          onValueChange={(value: string | null) => {
+            if (value) {
+              onFiltersChange({ folder: value })
+            } else {
+              showAll()
+            }
+          }}
+        >
+          <SelectTrigger
+            size="sm"
+            className="h-auto border-0 bg-transparent px-1 py-0 text-sm font-semibold capitalize shadow-none hover:bg-accent focus-visible:ring-0"
           >
-            <SelectTrigger
-              size="sm"
-              className="h-auto border-0 bg-transparent px-1 py-0 text-sm font-semibold capitalize shadow-none hover:bg-accent focus-visible:ring-0"
-            >
-              <SelectValue placeholder="All Notes">{listTitle}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">
-                <FileText className="size-4" data-icon />
-                All Notes
+            <SelectValue placeholder="All Notes">{listTitle}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">
+              <SoftFileText className="size-4" data-icon />
+              All Notes
+            </SelectItem>
+            {folderOptions.map((folder) => (
+              <SelectItem key={folder.id} value={folder.id}>
+                <span
+                  className="flex items-center gap-1.5"
+                  style={{ paddingLeft: `${folder.depth * 0.75}rem` }}
+                >
+                  <SoftFolder className="size-4 shrink-0" data-icon />
+                  {folder.name}
+                </span>
               </SelectItem>
-              {folderOptions.map((folder) => (
-                <SelectItem key={folder.id} value={folder.id}>
-                  <span
-                    className="flex items-center gap-1.5"
-                    style={{ paddingLeft: `${folder.depth * 0.75}rem` }}
-                  >
-                    <Folder className="size-4 shrink-0" data-icon />
-                    {folder.name}
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
         <span className="text-muted-foreground text-xs tabular-nums">
           {filteredPosts.length}
         </span>
+        <PlazaLayoutCapsule mode={stage} onChange={changeStage} />
       </div>
-      <ScrollArea className="min-h-0 flex-1">
-        {filteredPosts.length > 0 ? (
-          <BlogList
-            items={filteredPosts}
-            activeSlug={activeSlug}
-            onSelect={selectPost}
-            onTagClick={(tag) => {
-              onFiltersChange({ tag })
-            }}
-          />
-        ) : (
-          <Empty className="h-full border-0">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <FileText />
-              </EmptyMedia>
-              <EmptyTitle>No notes match</EmptyTitle>
-              <EmptyDescription>
-                Try another search, category, or tag.
-              </EmptyDescription>
-            </EmptyHeader>
-            <Button type="button" variant="ghost" size="sm" onClick={showAll}>
-              Clear filters
-            </Button>
-          </Empty>
-        )}
-      </ScrollArea>
+    </div>
+  )
+
+  const plazaProps = {
+    posts: filteredPosts,
+    onSelect: selectPost,
+  }
+
+  /** 模式一（默认）：整块内容区的卡片墙。 */
+  const plazaCards = (
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-background">
+      {stageHeader}
+      {filteredPosts.length > 0 ? (
+        <Plaza
+          {...plazaProps}
+          mode="cards"
+          showSummary={!filterCategory && !filterFolder && !filterTag}
+        />
+      ) : (
+        emptyState
+      )}
+    </section>
+  )
+
+  /** 模式二：点进一篇之后，内容区变成紧凑列表（左侧）+ 正文（右侧）。 */
+  const plazaList = (
+    <section className="flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-background">
+      {stageHeader}
+      {filteredPosts.length > 0 ? (
+        <Plaza {...plazaProps} mode="list" activeSlug={activeSlug} />
+      ) : (
+        emptyState
+      )}
     </section>
   )
 
@@ -340,7 +382,7 @@ export function BlogPageClient({
         <Empty className="h-full border-0">
           <EmptyHeader>
             <EmptyMedia variant="icon">
-              <FileText />
+              <SoftFileText />
             </EmptyMedia>
             <EmptyTitle>Select a note</EmptyTitle>
             <EmptyDescription>
@@ -372,44 +414,63 @@ export function BlogPageClient({
           {sidebar}
         </ResizablePanel>
         <ResizableHandle className="bg-sidebar-border" />
-        <ResizablePanel
-          defaultSize={352}
-          minSize={240}
-          maxSize={560}
-          groupResizeBehavior="preserve-pixel-size"
-          className="min-h-0 overflow-hidden"
-        >
-          {listPane}
-        </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel
-          minSize={320}
-          className="min-h-0 overflow-hidden"
-        >
-          {detailPane}
+        <ResizablePanel minSize={320} className="min-h-0 overflow-hidden">
+          {stage === "cards" ? (
+            plazaCards
+          ) : (
+            <ResizablePanelGroup
+              orientation="horizontal"
+              className="h-full min-h-0 w-full"
+            >
+              <ResizablePanel
+                defaultSize={320}
+                minSize={240}
+                maxSize={560}
+                className="min-h-0 overflow-hidden"
+              >
+                {plazaList}
+              </ResizablePanel>
+              <ResizableHandle />
+              <ResizablePanel minSize={320} className="min-h-0 overflow-hidden">
+                {detailPane}
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          )}
         </ResizablePanel>
       </ResizablePanelGroup>
     )
   }
 
   return (
-    <div className="grid h-full min-h-0 w-full grid-cols-1 overflow-hidden md:grid-cols-[22rem_minmax(0,1fr)]">
-      <div
-        className={cn(
-          "min-h-0 min-w-0 overflow-hidden border-r border-border",
-          isMobile && mobileDetail && "hidden"
-        )}
-      >
-        {listPane}
-      </div>
-      <div
-        className={cn(
-          "min-h-0 min-w-0 overflow-hidden",
-          isMobile && !mobileDetail && "hidden"
-        )}
-      >
-        {detailPane}
-      </div>
+    <div
+      className={cn(
+        "grid h-full min-h-0 w-full grid-cols-1 overflow-hidden",
+        // 列表模式才有「列表栏 + 正文」两列；卡片模式整块给内容区。
+        stage === "list" && "md:grid-cols-[22rem_minmax(0,1fr)]"
+      )}
+    >
+      {stage === "cards" ? (
+        <div className="min-h-0 min-w-0 overflow-hidden">{plazaCards}</div>
+      ) : (
+        <>
+          <div
+            className={cn(
+              "min-h-0 min-w-0 overflow-hidden border-r border-border",
+              isMobile && mobileDetail && "hidden"
+            )}
+          >
+            {plazaList}
+          </div>
+          <div
+            className={cn(
+              "min-h-0 min-w-0 overflow-hidden",
+              isMobile && !mobileDetail && "hidden"
+            )}
+          >
+            {detailPane}
+          </div>
+        </>
+      )}
     </div>
   )
 }
@@ -453,8 +514,7 @@ function WritingNav({
       className="bg-sidebar text-sidebar-foreground flex h-full min-h-0 flex-col"
     >
       <div className="flex h-12 shrink-0 items-center gap-2 px-4">
-        <PenLine className="size-4" data-icon />
-        <span className="text-sm font-semibold">Writing</span>
+        <AppSwitcher />
         <div className="ml-auto">
           <ThemeSelector />
         </div>
@@ -462,7 +522,7 @@ function WritingNav({
       <div className="px-3 pb-3">
         <InputGroup>
           <InputGroupAddon>
-            <Search />
+            <SoftSearch />
           </InputGroupAddon>
           <InputGroupInput
             id="writing-search"
@@ -479,7 +539,7 @@ function WritingNav({
       <ScrollArea className="min-h-0 flex-1">
         <div className="flex flex-col gap-4 px-2 pb-4">
           <NavRow
-            icon={FileText}
+            icon={SoftFileText}
             label="Notes"
             count={total}
             active={!filterCategory && !filterFolder}
@@ -489,7 +549,7 @@ function WritingNav({
           <FolderNav nodes={folders} activeId={filterFolder} onSelect={onSelectFolder} />
           {/* Collections 放在 Folders 下面 */}
           <NavRow
-            icon={Layers}
+            icon={SoftLayers}
             label="Collections"
             count={collectionsCount}
             active={false}
@@ -520,7 +580,7 @@ function WritingNav({
               <li key={category.id}>
                 <NavRow
                   icon={categoryMeta(category.id).icon}
-                  label={category.id}
+                  label={prettyLabel(category.id)}
                   count={category.count}
                   active={filterCategory === category.id}
                   onClick={() => onSelectCategory(category.id)}
@@ -551,7 +611,7 @@ function NavRow({
   onClick,
   iconColor,
 }: {
-  icon: typeof FileText
+  icon: SoftIcon
   label: string
   count: number
   active: boolean
@@ -564,7 +624,7 @@ function NavRow({
       onClick={onClick}
       data-active={active}
       className={cn(
-        "hover:bg-sidebar-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm capitalize",
+        "hover:bg-sidebar-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm",
         "data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium"
       )}
     >

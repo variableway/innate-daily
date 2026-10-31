@@ -15,6 +15,8 @@ export interface WritingPost extends PostMeta {
   toc: Array<{ id: string; text: string; level: number }>
   vault: WritingVault
   folder: string
+  /** frontmatter 里声明的原始分类（仅留作参考；分组以目录为准）。 */
+  metaCategory?: string
 }
 
 export function sourceFromFilePath(
@@ -71,6 +73,16 @@ function folderFromRelative(relative: string): string {
   return parts.join("/")
 }
 
+/**
+ * 分类 = 目录第一层（「目录即分类」）。
+ * 文档根统一为 docs/ 之后，目录结构本身就是分区，
+ * frontmatter 里的 category 不再作为分组维度，只留作参考。
+ */
+export function categoryFromFolder(folder: string, vault: string): string {
+  const first = folder.split("/").filter(Boolean)[0]
+  return first || vault
+}
+
 function titleFromBody(body: string, filePath: string): string {
   const heading = body.match(/^#\s+(.+)$/m)
   if (heading?.[1]) return heading[1].trim()
@@ -90,11 +102,13 @@ export function parseWritingFile(
   const { meta, body } = parseFrontmatter(raw)
   const title =
     meta.title && meta.title !== "Untitled" ? meta.title : titleFromBody(body, filePath)
+  const category = categoryFromFolder(folder, vault)
   return {
     ...meta,
     title,
     slug: meta.slug || fallbackSlug(filePath, source),
-    category: meta.category || folder.split("/")[0] || vault,
+    category,
+    metaCategory: meta.category && meta.category !== category ? meta.category : undefined,
     vault,
     folder,
     type,

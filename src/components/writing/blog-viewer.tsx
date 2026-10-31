@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react"
+import { SoftArrowLeft } from "../icons/soft-icons"
 import {
   Badge,
   Button,
@@ -38,6 +38,9 @@ export function BlogViewer({
   onTagClick,
   onCategoryClick,
 }: BlogViewerProps) {
+  // 只有真的有标题时才留出 ToC 侧栏：否则那 200px 会变成空白，正文被挤窄。
+  const hasToc = showToc && toc.length > 0
+
   return (
     <article className="flex h-full min-h-0 flex-col">
       <header className="shrink-0 border-b border-border px-6 py-5 md:px-8">
@@ -49,7 +52,7 @@ export function BlogViewer({
             onClick={onBack}
             className="mb-3 md:hidden"
           >
-            <ArrowLeft data-icon="inline-start" />
+            <SoftArrowLeft data-icon="inline-start" />
             Back
           </Button>
         ) : null}
@@ -81,15 +84,19 @@ export function BlogViewer({
 
       <ScrollArea className="min-h-0 flex-1">
         <div className="px-6 py-6 md:px-8 md:py-8">
-          {showToc ? (
-            <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_12.5rem]">
-              <MarkdownPreview source={content} />
+          {hasToc ? (
+            <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_13rem]">
+              {/* 正文列收在 42rem（672px）：按 16px 正文算约 84 拉丁字符 / 45 汉字一行，
+                  落在长文阅读的舒适区（拉丁 60-80、中文 30-45）上沿。 */}
+              <MarkdownPreview source={content} className="mx-auto w-full max-w-[42rem]" />
               <aside className="hidden lg:block">
                 <TableOfContents headings={toc} className="top-6" />
               </aside>
             </div>
           ) : (
-            <MarkdownPreview source={content} className="mx-auto max-w-3xl" />
+            // 没有 ToC 时正文独占整列，把侧栏让出来的空间还回去；
+            // 但阅读列宽仍按 42rem 收窄 —— 过宽的行长会让眼睛回扫时找错行。
+            <MarkdownPreview source={content} className="mx-auto w-full max-w-[42rem]" />
           )}
         </div>
       </ScrollArea>

@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { ChevronRight } from "lucide-react"
 import { cn } from "@innate/ui"
 import { folderMeta } from "../../lib/writing/category-meta"
 import { labelColorValue } from "../../lib/writing/label-color"
 import type { FolderNode } from "../../lib/writing/folder-tree"
+import { SoftChevronRight } from "../icons/soft-icons"
 
 export function FolderNav({
   nodes,
@@ -63,7 +63,7 @@ function FolderRow({
             onClick={() => setOpen((v) => !v)}
             className="text-muted-foreground hover:text-foreground inline-flex size-5 shrink-0 items-center justify-center rounded"
           >
-            <ChevronRight
+            <SoftChevronRight
               className={cn("size-3.5 transition-transform", open && "rotate-90")}
               data-icon
             />

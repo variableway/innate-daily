@@ -4,20 +4,21 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router"
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  Layers,
-  Package,
-  PenLine,
-  Star,
-  type LucideIcon,
-} from "lucide-react"
 import { cn } from "@innate/ui"
 import { useWritingContent } from "../lib/content/use-writing-content"
 import { countByCategory } from "../lib/writing/filter-posts"
 import { categoryMeta } from "../lib/writing/category-meta"
+import { prettyLabel } from "../lib/writing/pretty-label"
+import { sourceIcon, sourceLabel } from "../lib/collections/source"
+import {
+  SoftChevronLeft,
+  SoftChevronRight,
+  SoftChevronUp,
+  SoftLayers,
+  SoftPenLine,
+  SoftStar,
+  type SoftIcon,
+} from "./icons/soft-icons"
 import { labelColorValue } from "../lib/writing/label-color"
 import {
   getAllCollections,
@@ -31,7 +32,7 @@ type MenuView = "notes" | "collections"
 interface MenuOption {
   key: string
   label: string
-  icon: LucideIcon
+  icon: SoftIcon
   /** 策展色相；undefined = 不着色。 */
   hue?: number | null
   count: number
@@ -91,7 +92,7 @@ export function CategoryMenu() {
       {
         key: "__all__",
         label: "All",
-        icon: PenLine,
+        icon: SoftPenLine,
         count: posts.length,
         active: activeCategory === null,
         onSelect: () => selectNoteCategory(null),
@@ -122,7 +123,7 @@ export function CategoryMenu() {
       {
         key: "__all__",
         label: "All",
-        icon: Layers,
+        icon: SoftLayers,
         count: collections.length,
         active: onCollections && noneActive,
         onSelect: () => selectCollectionFilter({}),
@@ -130,7 +131,7 @@ export function CategoryMenu() {
       {
         key: "__featured__",
         label: "Featured",
-        icon: Star,
+        icon: SoftStar,
         count: countBy((c) => c.featured),
         active: activeFeatured,
         onSelect: () =>
@@ -148,8 +149,8 @@ export function CategoryMenu() {
       })),
       ...getUniqueSources().map((id) => ({
         key: `source:${id}`,
-        label: id,
-        icon: Package,
+        label: sourceLabel(id),
+        icon: sourceIcon(id),
         hue: null,
         count: countBy((c) => c.source === id),
         active: activeSource === id,
@@ -259,7 +260,7 @@ export function CategoryMenu() {
             <div className="border-border bg-popover/80 absolute bottom-full left-0 mb-2 w-40 rounded-xl border p-1.5 shadow-xl backdrop-blur-md">
               <ViewOption
                 label="Notes"
-                icon={PenLine}
+                icon={SoftPenLine}
                 count={posts.length}
                 active={view === "notes"}
                 onClick={() => {
@@ -270,7 +271,7 @@ export function CategoryMenu() {
               />
               <ViewOption
                 label="Collections"
-                icon={Layers}
+                icon={SoftLayers}
                 count={collections.length}
                 active={view === "collections"}
                 onClick={() => {
@@ -289,14 +290,14 @@ export function CategoryMenu() {
             className="text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-1 rounded-full px-2 py-1 text-xs transition-colors"
           >
             {view === "notes" ? (
-              <PenLine className="size-3.5" data-icon />
+              <SoftPenLine className="size-3.5" data-icon />
             ) : (
-              <Layers className="size-3.5" data-icon />
+              <SoftLayers className="size-3.5" data-icon />
             )}
             <span className="font-medium text-foreground">
               {view === "notes" ? "Notes" : "Collections"}
             </span>
-            <ChevronUp
+            <SoftChevronUp
               className={cn(
                 "size-3 transition-transform",
                 viewMenuOpen && "rotate-180"
@@ -314,7 +315,7 @@ export function CategoryMenu() {
           onClick={() => slide(-1)}
           className={arrowButton}
         >
-          <ChevronLeft className="size-3.5" data-icon />
+          <SoftChevronLeft className="size-3.5" data-icon />
         </button>
 
         <div
@@ -354,7 +355,7 @@ export function CategoryMenu() {
           onClick={() => slide(1)}
           className={arrowButton}
         >
-          <ChevronRight className="size-3.5" data-icon />
+          <SoftChevronRight className="size-3.5" data-icon />
         </button>
       </div>
     </nav>
@@ -369,7 +370,7 @@ function ViewOption({
   onClick,
 }: {
   label: string
-  icon: LucideIcon
+  icon: SoftIcon
   count: number
   active: boolean
   onClick: () => void
