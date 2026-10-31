@@ -1,5 +1,6 @@
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/jetbrains-mono";
+@import "@fontsource-variable/noto-sans-sc";
 @import "@innate/ui/globals.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -140,9 +141,29 @@ body,
   border-color: color-mix(in oklab, var(--label-color) 35%, transparent);
 }
 
+/* 中文字体顺序：先系统字体（macOS 苹方 / Windows 雅黑），Noto Sans SC 放最后兜底。
+   实测思源黑体的中文字面比苹方大一号（ascent 116 vs 106）、笔画更重，
+   排在苹方前面会让 macOS 上的正文显得更"胀"，观感反而不如系统字体精细；
+   Noto 只在没有苹方/雅黑的系统上兜底，保证三端都有中文可渲染。 */
 @theme inline {
   --font-sans:
-    "Inter Variable", "PingFang SC", "Noto Sans SC", "Microsoft YaHei",
+    "Inter Variable", "PingFang SC", "Microsoft YaHei", "Noto Sans SC Variable",
+    sans-serif;
+  --font-mono:
+    "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+}
+
+/* @innate/ui 的 studio 主题（marshmallow / art-deco）会用未打包的字体名覆写
+   --font-sans / --font-mono（Gabriela、Geist Mono、Delius Swash Caps），
+   而那些字体并不在本仓库的依赖里 —— 切到这两个主题时 Inter / JetBrains Mono
+   会被静默替换掉，最终回退到系统字体。
+   @theme inline 生成的变量位于 @layer theme 内，优先级低于 studio 主题的未分层规则；
+   因此这里用未分层、且位于 studio 主题之后的规则重新钉住本站的字体选择。 */
+:root,
+:root[data-theme] {
+  --font-sans:
+    "Inter Variable", "PingFang SC", "Microsoft YaHei", "Noto Sans SC Variable",
     sans-serif;
   --font-mono:
     "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas,
@@ -156,9 +177,11 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Tailwind preflight 会清掉标题字号、列表符号和块间距，这里用 token 补回来。 */
+/* Tailwind preflight 会清掉标题字号、列表符号和块间距，这里用 token 补回来。
+   显式声明 font-family 是为了让正文与 UI 骨架解耦：以后换正文衬线只需改这一处。 */
 .markdown-content {
   color: var(--foreground);
+  font-family: var(--font-sans);
   font-size: 0.9375rem;
   line-height: 1.75;
 }
@@ -334,5 +357,455 @@ body {
 .markdown-content .hljs-template-variable,
 .markdown-content .hljs-tag .hljs-attr {
   color: var(--chart-1);
+}
+
+/* ── Plaza 广场（卡片墙 ⇄ 列表） ──────────────────────────────────
+   结构移植自 daily-next 首页的 Plaza：瀑布流卡片墙 + 底部栏目胶囊 +
+   列表分节（悬停浮出大图）。颜色全部走本站 token，主题变体下都成立。 */
+.plaza-root {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.plaza-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 20px 88px;
+}
+
+/* 卡片墙：列数由 JS 按宽度算好，这里只负责分列。 */
+.site-plaza {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: 0;
+}
+
+.site-plaza-col {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.plaza-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+  animation: plaza-in 400ms ease-out both;
+}
+
+@keyframes plaza-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.plaza-card:hover {
+  border-color: color-mix(in oklab, var(--foreground) 18%, var(--border));
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.plaza-card:active {
+  transform: scale(0.99);
+}
+
+.plaza-card:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.plaza-media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-color: var(--muted);
+  background-position: center;
+  background-size: cover;
+}
+
+/* 封面是内联 SVG（跟随主题 token），统一撑满各自容器。 */
+.plaza-media svg,
+.plaza-list-thumb svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.plaza-card-body {
+  padding: 16px;
+}
+
+.plaza-kicker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.plaza-dot {
+  flex: none;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.plaza-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  overflow-wrap: break-word;
+}
+
+.plaza-judgment {
+  display: -webkit-box;
+  margin: 6px 0 0;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  overflow-wrap: break-word;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.plaza-go {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--foreground);
+  opacity: 0;
+  filter: blur(4px);
+  transform: scale(0.4);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease,
+    filter 200ms ease;
+  pointer-events: none;
+}
+
+.plaza-card:hover .plaza-go,
+.plaza-card:focus-visible .plaza-go {
+  opacity: 1;
+  filter: none;
+  transform: scale(1);
+}
+
+/* 概览卡：总量 + 高频标签胶囊（静态倾斜，模拟源站的物理胶囊）。 */
+.plaza-summary {
+  background: var(--muted);
+  border-color: transparent;
+}
+
+.plaza-summary .plaza-card-body {
+  padding-bottom: 8px;
+}
+
+.plaza-summary .plaza-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+
+.plaza-title-date {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted-foreground);
+}
+
+.plaza-overview {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--foreground);
+  overflow-wrap: break-word;
+}
+
+.plaza-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px 0 12px;
+}
+
+.plaza-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--foreground);
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+/* ---------------------------------------------------------------- collections */
+/* 条目区卡片墙：与 Plaza 同款卡片，按栏宽自适应 1~2 列。 */
+.collection-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  align-items: start;
+  padding: 12px;
+}
+
+.collection-card .plaza-media {
+  aspect-ratio: 16 / 9;
+}
+
+/* 站点首屏截图封面：裁切填满 16:9，边缘与卡片圆角对齐。 */
+.collection-cover {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border-bottom: 1px solid var(--border);
+}
+
+/* 截图是 light 版站点，暗色主题下压暗一点，避免与卡片背景割裂。 */
+.dark .collection-cover {
+  filter: brightness(0.86) saturate(0.94);
+}
+
+/* 卡片底部是徽标行，悬停箭头改挂在封面右上角，避免压住徽标。 */
+.collection-card .plaza-go {
+  top: 10px;
+  bottom: auto;
+}
+
+.collection-card .plaza-go.is-on {
+  opacity: 1;
+  filter: none;
+  transform: scale(1);
+}
+
+.collection-card .plaza-chips {
+  padding: 10px 0 0;
+}
+
+.collection-card[data-active="true"] {
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+/* 列表模式：按分类分节，右侧小图，悬停浮出大图预览。 */
+.plaza-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 720px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.plaza-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 28px;
+  padding: 0 2px 2px;
+}
+
+.plaza-section-header:first-of-type {
+  margin-top: 0;
+}
+
+.plaza-section-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.plaza-section-count {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-foreground);
+}
+
+.plaza-list-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.plaza-list-row:hover {
+  border-color: color-mix(in oklab, var(--foreground) 18%, var(--border));
+}
+
+.plaza-list-row[data-active="true"] {
+  border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+  background: color-mix(in oklab, var(--primary) 7%, var(--card));
+}
+
+.plaza-list-row:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.plaza-list-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.plaza-list-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+
+.plaza-list-judgment {
+  display: -webkit-box;
+  margin: 4px 0 0;
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.plaza-list-thumb {
+  flex: none;
+  width: 72px;
+  height: 44px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--muted);
+  background-position: center;
+  background-size: cover;
+  transition:
+    transform 200ms ease,
+    border-color 200ms ease;
+}
+
+.plaza-list-row:hover .plaza-list-thumb {
+  transform: scale(1.06);
+  border-color: color-mix(in oklab, var(--foreground) 20%, var(--border));
+}
+
+/* 底部渐隐遮罩：内容滚到底部时淡出。 */
+.plaza-fade {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--background) 85%);
+  pointer-events: none;
+}
+
+/* 布局切换胶囊（卡片 ⇄ 列表），沿用源站偏好行的形态。 */
+.site-layout-capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--muted);
+}
+
+.site-layout-capsule button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 100%;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.site-layout-capsule button:hover {
+  color: var(--foreground);
+}
+
+.site-layout-capsule button.is-on {
+  background: var(--card);
+  color: var(--foreground);
+  font-weight: 500;
+  box-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 10%, transparent);
+}
+
+.site-layout-capsule button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
 }
 

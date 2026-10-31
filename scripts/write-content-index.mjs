@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
  * Copy markdown into a Pages site folder and write content/index.json.
+ * 文档根统一为 docs/，内容从 docs/content/ 复制。
  *   node scripts/write-content-index.mjs [destDir]
  */
-import { cp, mkdir, readdir, writeFile } from "node:fs/promises"
+import { cp, mkdir, readdir, rm, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
-const srcDir = path.join(repoRoot, "content")
+const srcDir = path.join(repoRoot, "docs/content")
 const destDir = path.resolve(process.argv[2] || path.join(repoRoot, "site/content"))
 
 async function walkMarkdown(dir, prefix = "") {
@@ -33,6 +34,8 @@ if (files.length === 0) {
   throw new Error(`No markdown in ${srcDir}`)
 }
 
+// 先清空旧产物，避免内容迁移后残留过期文章。
+await rm(destDir, { recursive: true, force: true })
 await mkdir(destDir, { recursive: true })
 for (const rel of files) {
   const dest = path.join(destDir, rel)

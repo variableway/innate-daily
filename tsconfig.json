@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "paths": {
-      "#writing-files": ["./src/lib/content/bundled-files.use-cases.ts"]
+      "#writing-files": ["./src/lib/content/bundled-files.all.ts"]
     }
   },
   "include": ["src", "vite.config.ts", "vitest.config.ts"]

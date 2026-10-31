@@ -9,11 +9,11 @@ template:
 site:
   title: Innate Daily
   defaultPath: /
-  home: ./pages/home.md
+  home: ./docs/pages/home.md
 
 domains:
   - id: writing
-    content: ./content
+    content: ./docs/content
     mount: content
     path: /writing
 

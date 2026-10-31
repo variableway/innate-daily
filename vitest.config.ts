@@ -4,7 +4,12 @@ import react from "@vitejs/plugin-react"
 import { defineConfig } from "vitest/config"
 
 const pkgDir = path.dirname(fileURLToPath(import.meta.url))
-const source = process.env.VITE_WRITING_SOURCE === "docs" ? "docs" : "use-cases"
+const source =
+  process.env.VITE_WRITING_SOURCE === "docs"
+    ? "docs"
+    : process.env.VITE_WRITING_SOURCE === "use-cases"
+      ? "use-cases"
+      : "all"
 
 export default defineConfig({
   root: pkgDir,

@@ -15,7 +15,10 @@ function readMermaidVariables(): Record<string, string> {
   const read = (name: string) => styles.getPropertyValue(name).trim()
   return {
     background: "transparent",
+    // 字体栈读 --font-sans token：正文/UI 换字体时图表内文字同步跟随，
+    // 避免 mermaid 里写死一份栈而与站点其他部分脱节。
     fontFamily:
+      read("--font-sans") ||
       '"Inter Variable", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif',
     fontSize: "14px",
     mainBkg: read("--mermaid-main-bkg"),
