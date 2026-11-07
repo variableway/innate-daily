@@ -1,5 +1,4 @@
 import {
-  SoftBlocks,
   SoftBook,
   SoftCalendar,
   SoftFileText,
@@ -9,7 +8,6 @@ import {
   SoftHammer,
   SoftLightbulb,
   SoftPackage,
-  SoftPalette,
   SoftWrench,
   type SoftIcon,
 } from "../../components/icons/soft-icons"
@@ -36,22 +34,17 @@ const CATEGORY_META: Record<string, LabelMeta> = {
   guide: { icon: SoftHammer, hue: 45 },
   weekly: { icon: SoftCalendar, hue: 60 },
   log: { icon: SoftCalendar, hue: 60 },
-  // 目录推导出来的分类（docs/ 下的第一层目录）。
-  "build-it-own": { icon: SoftBlocks, hue: 30 },
-  toolchain: { icon: SoftWrench, hue: 150 },
-  content: { icon: SoftFileText, hue: 210 },
+  // 目录推导出来的分类（docs/ 下的第一层目录 / vault 名）。
+  docs: { icon: SoftFileText, hue: 210 },
+  "use-cases": { icon: SoftPackage, hue: 20 },
 }
 
 /** 目录（folder 树节点，按节点名匹配）映射。 */
 const FOLDER_META: Record<string, LabelMeta> = {
   demo: { icon: SoftWrench, hue: 150 },
-  research: { icon: SoftFlask, hue: 300 },
-  ui: { icon: SoftPalette, hue: 300 },
   specs: { icon: SoftFileText, hue: 210 },
+  docs: { icon: SoftFileText, hue: 210 },
   "use-cases": { icon: SoftPackage, hue: 20 },
-  "build-it-own": { icon: SoftBlocks, hue: 30 },
-  content: { icon: SoftFileText, hue: 210 },
-  toolchain: { icon: SoftWrench, hue: 150 },
 }
 
 /**

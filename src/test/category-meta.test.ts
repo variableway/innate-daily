@@ -25,7 +25,7 @@ describe("category-meta", () => {
   })
 
   it("folderMeta prefers folder table, falls back to category table, then Folder", () => {
-    expect(folderMeta("ui").hue).toBe(300)
+    expect(folderMeta("use-cases").hue).toBe(20)
     expect(folderMeta("weekly").icon).toBe(categoryMeta("weekly").icon)
     expect(folderMeta("random-folder").icon).toBe(SoftFolder)
   })
