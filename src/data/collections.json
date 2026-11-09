@@ -73,7 +73,25 @@
       "thumbnail": "collections-covers/innate-feeds.webp",
       "date": "2026-10-31",
       "featured": true
+    },
+    {
+      "id": "innate-vytdl",
+      "title": "Innate vYtDL",
+      "description": "Go 编写的 CLI / TUI，封装 yt-dlp：支持 1800+ 站点的视频下载（YouTube、Bilibili、TikTok、X/Twitter、Instagram、Vimeo、Twitch、小红书…）。不重新实现下载器，而是把 yt-dlp 作为子进程调度，简化日常参数（默认 EN/ZH 字幕、`-o` 目录），补充播放列表断点续传、TUI 进度、统一下载记录，并按需自动安装 yt-dlp。附带 `vYtDL serve` 后台服务（HTTP API + WebSocket + 下载队列 + SQLite），是 Web / 桌面前端的唯一后端。",
+      "url": "https://github.com/qdriven/innate-vytdl",
+      "repo": "https://github.com/qdriven/innate-vytdl",
+      "repoVisibility": "public",
+      "source": "github",
+      "category": "工具效率",
+      "tags": [
+        "cli",
+        "go",
+        "yt-dlp",
+        "download"
+      ],
+      "date": "2026-11-07",
+      "featured": true
     }
   ],
-  "lastUpdated": "2026-10-31T08:00:00.000Z"
+  "lastUpdated": "2026-11-09T16:58:00.000Z"
 }
