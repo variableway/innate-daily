@@ -25,14 +25,14 @@ describe("writing content vault", () => {
 
   it("derives vault and folder from the docs directory layout", () => {
     const posts = getWritingMeta()
-    // docs/markdown-usage.md → vault docs（vault 根，无子目录）
-    const docs = posts.find((post) => post.vault === "docs")
-    expect(docs?.slug).toBe("markdown-usage")
-    expect(docs?.folder).toBe("")
-    // docs/use-cases/** → vault use-cases
+    // docs/basic/markdown-usage.md → vault docs，folder 取 docs/ 下的第一层目录。
+    const docs = posts.find((post) => post.slug === "markdown-usage")
+    expect(docs?.vault).toBe("docs")
+    expect(docs?.folder).toBe("basic")
+    // docs/use-cases/** → vault use-cases，folder 同样取子目录名。
     const useCases = posts.filter((post) => post.vault === "use-cases")
     expect(useCases.length).toBeGreaterThan(0)
-    expect(useCases.every((post) => post.folder === "")).toBe(true)
+    expect(useCases.every((post) => post.folder.length > 0)).toBe(true)
     // docs/content/** 已删除：不再产生 content vault
     expect(posts.every((post) => post.vault !== "content")).toBe(true)
   })

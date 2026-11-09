@@ -6,21 +6,18 @@
  *    基础仓 packages/ui + preferWorkspacePackages）解析 @innate/ui，不走私有源；
  * 2. 本地：`innate-fe-cli install` 起本地 Verdaccio（127.0.0.1:4873）、把基础仓
  *    @innate/* 发布上去、写 .npmrc、pnpm install；
- * 3. `pnpm update @innate/ui` 让 lockfile/node_modules 跟到私有源上最新发布版本，
- *    随后把 package.json 的约束写回 `*`（pnpm update 有「保存」语义，会把 `*`
- *    改写成 `^x.y.z`；写回 `*` 保证约束永远不挡新版本，CI 的 workspace 链接也
- *    永远满足）。
+ * 3. `pnpm update @innate/ui --no-save` 让 lockfile/node_modules 跟到私有源上最新
+ *    发布版本。必须带 `--no-save`：不带时 pnpm 有「保存」语义，会把 package.json
+ *    的 `*` 改写成 `^x.y.z`，而 lockfile 里记的 specifier 也变成 `^x.y.z`；事后把
+ *    package.json 写回 `*` 只会让两者不一致，frozen-lockfile 直接拒绝安装。
+ *    `--no-save` 让 package.json 与 lockfile 的 specifier 始终都是 `*`——
+ *    约束永远不挡新版本，CI 的 workspace 链接也永远满足。
  *
  * 用法：node scripts/ensure-innate-ui.mjs [--latest]
  *   --latest  基础仓改过源码还没升版本时，强制重发（--bump patch）再同步。
  *             注意：本地版本号会递增（0.1.4、0.1.5…），lockfile 会跟着变。
  */
 import { spawnSync } from "node:child_process"
-import { readFileSync, writeFileSync } from "node:fs"
-import { fileURLToPath } from "node:url"
-import { dirname, join } from "node:path"
-
-const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "package.json")
 
 const latest = process.argv.includes("--latest")
 
@@ -39,15 +36,6 @@ function run(cmd, args) {
     console.error(`[setup] 失败（exit ${r.status}）：${line}`)
     process.exit(r.status ?? 1)
   }
-}
-
-/** 把 @innate/ui 约束写回 `*`（undo pnpm update 的「保存」改写）。 */
-function restoreWildcardSpec() {
-  const pkg = JSON.parse(readFileSync(pkgPath, "utf8"))
-  if (pkg.dependencies?.["@innate/ui"] === "*") return
-  pkg.dependencies["@innate/ui"] = "*"
-  writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
-  console.log('[setup] 已把 package.json 的 @innate/ui 约束写回 "*"（保持永远解析最新）')
 }
 
 // 先探针：innate-fe-cli 缺失 / 基础仓没配（fe-root）时，给出可操作的指引再退出，
@@ -69,5 +57,4 @@ if (probe.status !== 0) {
 }
 
 run("innate-fe-cli", ["install", "--dir", ".", ...(latest ? ["--bump", "patch"] : [])])
-run("pnpm", ["update", "@innate/ui"])
-restoreWildcardSpec()
+run("pnpm", ["update", "@innate/ui", "--no-save"])
