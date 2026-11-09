@@ -19,6 +19,21 @@ VITE_WRITING_SOURCE=use-cases pnpm --filter @innate/daily dev
 
 或在本目录直接 `./dev.sh`（自动选择 workspace 根或本仓 node_modules 启动）。
 
+## 本地私有源（@innate/ui 供给链）
+
+`@innate/ui` 没发到 npm，本地开发走 **127.0.0.1:4873 的 Verdaccio 私有源**。
+每个命令（`dev` / `build` / `test` / …）都自带 `pnpm run setup` 前置，自动完成：
+起私有源 → 发布基础仓 `@innate/*` → 装依赖 → 同步到最新版本，**无需手工恢复**。
+
+```bash
+pnpm run setup          # 手动跑一遍供给链（幂等，正常时几秒）
+pnpm run setup:latest   # 基础仓改了源码还没升版本时：强制重发再同步（本地版本号会递增）
+```
+
+- 首次使用需要 `innate-fe-cli`，并配置基础仓：`innate-fe-cli fe-root set <innate-fe 路径>`。
+- 基础仓发新版后：`pnpm run setup` 即可跟上（`@innate/ui` 约束为 `*`，永远解析最新发布）。
+- CI 不走这条链路（deploy-pages 用注入式 workspace 链接 `packages/ui`，守卫会自动跳过）。
+
 ## 在哪里写文件
 
 内容在**构建期**经 `import.meta.glob(?raw)` 内联进 bundle（运行时无 fs、无网络请求）。把 Markdown / MDX 文件放到以下目录即可被站点收录：
@@ -45,4 +60,8 @@ pnpm --filter @innate/daily preview        # 预览 dist
 pnpm --filter @innate/daily typecheck      # tsc --noEmit
 pnpm --filter @innate/daily lint           # oxlint src
 pnpm --filter @innate/daily test           # vitest run
+pnpm --filter @innate/daily setup          # 供给链自检（各命令已自动前置）
 ```
+
+以上每个命令都前置 `pnpm run setup`（见「本地私有源」一节）；在本目录直跑
+`pnpm dev` / `pnpm test` 等效果相同。
