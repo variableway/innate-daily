@@ -6,12 +6,12 @@ author: Innate Team
 category: guide
 tags: [use-case, node, typescript, spark-cli]
 status: published
-excerpt: "面向零基础的 Node/TypeScript 项目第一课，以「给文档站写一个 TypeScript 小工具」为贯穿案例：项目的基本技术、怎么用第三方包、怎么用 package.json / lockfile 管理依赖，以及构建与工具链（tsx / tsc / tsup / oxlint）的分工。与 Golang CLI 入门是姊妹篇。"
+excerpt: "面向零基础的 Node/TypeScript 项目第一课：先用 docmd init 五分钟建一个文档站并马上启动，再顺着它讲项目的基本技术、怎么用第三方包、package.json / lockfile 怎么管理依赖、构建与工具链的分工，最后回到本仓库 innate-daily 看这套知识在真实项目里的样子。"
 ---
 
 # Node + TypeScript 入门 · 第一课
 
-面向零基础：用「给文档站写一个 TypeScript 小工具」当例子，搞懂
+面向零基础：先用五分钟把一个文档站**跑起来**，再顺着这个站搞懂
 「一个 Node/TypeScript 项目是怎么炼成的」。
 
 学完你应该能回答四个问题：
@@ -21,49 +21,55 @@ excerpt: "面向零基础的 Node/TypeScript 项目第一课，以「给文档�
 3. 怎么**管理依赖**（版本锁定、升级、清理）？
 4. **构建与工具链**是怎么分工的？
 
-> 和 [Golang CLI 入门 · 第一课](golang-cli-101.md) 是姊妹篇：那一课讲 Go，
-> 这一课讲 Node + TypeScript，用同一个「文档站」当贯穿案例。
-
 ---
 
-## 0. 先看一眼成品
+## 0. 先跑起来：五分钟拥有一个文档站
 
-本仓库的 `docs/` 就是一个 Node 文档站，它的完整链路只有五步：
+不谈概念，先动手。你需要 Node.js（≥ 20）和一个终端，然后：
+
+```bash
+mkdir my-docs && cd my-docs    # 建个项目文件夹
+npx @docmd/core@latest init    # 生成一个现成的文档站
+npm install                    # 装依赖（第一次会花一两分钟）
+npm run dev                    # 启动开发服务器
+```
+
+浏览器打开 <http://localhost:3000>——一个带侧栏、搜索和主题切换的
+文档站已经在跑了。打开 `docs/index.md`，改一行字保存，页面立刻更新。
+
+`init` 给你的东西很少，每个文件都值得打开看一眼：
+
+| 文件 | 作用 |
+|------|------|
+| `package.json` | 项目声明 + 依赖清单 + 命令别名（今天的主角） |
+| `docmd.config.json` | 站点配置：标题、源目录、输出目录、主题 |
+| `docs/index.md` | 首页内容——文档站吃的就是 Markdown |
+| `SKILL.md` | docmd 自带给 AI 助手看的操作说明，教 agent 怎么运维这个站 |
+
+它的发布链路只有三步：
 
 ```
 docs/**.md          Markdown 源文件
    │
-   ├─ docmd build    ① 读 Markdown + docmd.config.js → site/
+   ├─ docmd build    ① 读 Markdown + docmd.config.json → site/
    │
    └─ site/          ② 静态 HTML + 搜索索引 + sitemap
         │
         └─ Actions  ③ push 到 main 自动发布到 GitHub Pages
 ```
 
-对应的三个文件，你今天会全部用到：
-
-| 文件 | 作用 | Go 里的对应物 |
-|------|------|----------------|
-| `package.json` | 项目声明 + 依赖清单 + 命令别名 | `go.mod` + `Makefile` |
-| `docmd.config.js` | 站点配置（源目录、输出、主题、i18n） | `internal/config` + flag 定义 |
-| `tsconfig.json` | TypeScript 编译选项 | `go build` 的编译期约束 |
+接下来四节都用这个刚出生的项目当教材。看完之后，我们回到
+你正在读的这个站（innate-daily），看它作为真实项目是怎么把
+这套知识用起来的。
 
 ---
 
 ## 1. 基本技术：一个 Node 项目 = 一个 package.json
 
-Node 项目和 Go 项目的差别，第一眼就在**入口**上：
+打开刚生成的 `package.json`——整个项目的"身份证 + 遥控器"就是它。
+（如果你写过 Go：它同时扮演 `go.mod` 和 `Makefile` 两个角色。）
 
-| | Go | Node / TypeScript |
-|---|-----|-------------------|
-| 入口 | `main.go` → `cmd.Execute()` | `package.json` 的 `main` / `scripts` |
-| 命令定义 | Cobra 结构体 | `package.json` 的 `scripts` 字段 |
-| 业务代码放哪 | `internal/`（外部不可见） | `src/`（靠约定 + `exports` 限制） |
-| 依赖清单 | `go.mod` | `package.json` 的 `dependencies` |
-| 依赖锁定 | `go.sum` | `package-lock.json` / `pnpm-lock.yaml` |
-| 产物 | 单个二进制 | 一堆 `.js` + `node_modules`（或打包后的单文件） |
-
-### package.json 逐字段拆解
+你手里这个文件的真身：
 
 ```json
 {
@@ -77,19 +83,20 @@ Node 项目和 Go 项目的差别，第一眼就在**入口**上：
     "preview": "npx serve site"
   },
   "dependencies": {
-    "@docmd/core": "^0.9.8",
-    "@docmd/plugin-search": "0.9.8"
+    "@docmd/core": "^0.9.8"
   }
 }
 ```
+
+逐字段看一遍：
 
 | 字段 | 作用 | 备注 |
 |------|------|------|
 | `name` / `version` | 项目名与版本 | 私有项目随便填 |
 | `private: true` | 禁止意外发布到 npm | 文档站务必加 |
 | `type: "module"` | 整个项目用 ESM 语法 | 写成 `commonjs` 则用 `require` |
-| `scripts` | 命令别名 | `npm run build` = `docmd build` |
-| `dependencies` | 运行时依赖 | 进产物 |
+| `scripts` | 命令别名 | `npm run dev` = `docmd dev`，你刚才启动就用的它 |
+| `dependencies` | 运行时依赖 | 进产物，全项目只有一个：docmd 本体 |
 | `devDependencies` | 开发期依赖 | 不进产物（typescript、eslint…） |
 
 > **ESM vs CJS 速记**：现代 Node 默认 ESM，写 `import` / `export`；
@@ -248,132 +255,49 @@ npm test           # 跑测试
 
 ---
 
-## 5. Use case：给文档站写一个 TypeScript 工具
+## 5. Use case：你正在读的这个站，就是这么造的
 
-现在把上面的知识串起来：**用 TypeScript 写一个小工具，扫描 `docs/` 下的 Markdown，
-自动生成 `navigation.json`**。这是每个文档站都会遇到的需求。
+概念过了一遍，回头看一个真实项目——innate-daily，也就是你正在读的
+这篇文章所在的仓库。它比文档站更进一步：不只是"把 Markdown 变成
+网页"，而是一个**纯静态的 React 单页应用（SPA）**。
 
-### 5.1 建项目
-
-```bash
-mkdir docs-nav-tool && cd docs-nav-tool
-npm init -y
-npm i -D typescript @types/node tsx
-npx tsc --init          # 生成一份 tsconfig.json 再按需修改
-```
-
-目录：
-
-```
-docs-nav-tool/
-├── package.json
-├── tsconfig.json
-└── src/
-    └── nav.ts
-```
-
-### 5.2 写代码
-
-```ts
-// src/nav.ts
-import { readdir, readFile, writeFile } from "node:fs/promises";
-import { basename, join, relative } from "node:path";
-
-interface NavItem {
-  title: string;
-  path: string;
-  children?: NavItem[];
-}
-
-async function walk(dir: string, root: string): Promise<NavItem[]> {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const items: NavItem[] = [];
-
-  for (const e of entries) {
-    const full = join(dir, e.name);
-    if (e.isDirectory()) {
-      items.push({
-        title: e.name,
-        path: "/" + relative(root, full).split(/[\\/]/).join("/"),
-        children: await walk(full, root),
-      });
-      continue;
-    }
-    if (!e.name.endsWith(".md")) continue;
-
-    // 标题取正文第一个 h1，没有就用文件名
-    const body = await readFile(full, "utf8");
-    const h1 = body.match(/^#\s+(.+)$/m)?.[1]?.trim();
-    items.push({
-      title: h1 ?? basename(e.name, ".md"),
-      path: "/" + relative(root, full).replace(/\.md$/, "").split(/[\\/]/).join("/"),
-    });
-  }
-
-  return items.sort((a, b) => a.title.localeCompare(b.title));
-}
-
-const [, , srcDir = "docs/zh", outFile = "docs/zh/navigation.json"] = process.argv;
-const tree = await walk(srcDir, srcDir);
-await writeFile(outFile, JSON.stringify(tree, null, 2), "utf8");
-console.log(`wrote ${tree.length} top-level item(s) to ${outFile}`);
-```
-
-几个 TypeScript 特有的点，顺手记住：
-
-| 写法 | 含义 |
-|------|------|
-| `interface NavItem` | 描述对象结构 |
-| `async` / `await` | 异步；`Promise<string[]>` 是「将来会得到 string 数组」 |
-| `e is File` / `e.isDirectory()` | 目录项类型收窄 |
-| `?.` / `??` | 可选链 / 空值合并 |
-| `const [, , srcDir = "docs/zh"]` | 数组解构 + 默认值 |
-
-### 5.3 接进 scripts
+打开它的 `package.json`，`scripts` 长这样：
 
 ```json
 {
-  "type": "module",
   "scripts": {
-    "nav": "tsx src/nav.ts docs/zh docs/zh/navigation.json",
+    "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
-  },
-  "devDependencies": {
-    "@types/node": "^22.0.0",
-    "tsx": "^4.0.0",
-    "typescript": "^5.5.0"
+    "build": "vite build && node -e \"…顺手复制一份 404.html 兜底…\"",
+    "test": "vitest run",
+    "lint": "oxlint src"
   }
 }
 ```
 
-```bash
-npm run nav         # 生成 navigation.json
-npm run typecheck   # 类型检查（提交前跑一遍）
-```
+（它用 pnpm 管依赖，所以根目录是 `pnpm-lock.yaml` 而不是
+`package-lock.json`——锁文件"三选一别混用"的现实版。）
 
-### 5.4 接进 CI
+它和 docmd 站的关键差别在**内容怎么进网页**：docmd 构建时把 Markdown
+渲染成一个个 HTML 页面；innate-daily 则是在构建期把 `docs/` 下的
+Markdown **原样内联进 JS bundle**（Vite 的 `import.meta.glob`），
+运行时没有文件系统、没有网络请求——整站就是一个可以放在
+GitHub Pages 上的静态 SPA。细节见
+[Markdown 写作指南](markdown-usage.md)。
 
-在 GitHub Actions 里，类型检查和构建都能挂上：
+把你学过的东西对号入座：
 
-```yaml
-name: CI
-on: [push, pull_request]
-jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run build
-```
+| 你学过的 | 在 innate-daily 里 |
+|----------|-------------------|
+| `npm run dev` | `pnpm dev` → <http://localhost:4016> |
+| 依赖清单与锁文件 | `package.json` + `pnpm-lock.yaml` |
+| TypeScript 编译选项 | `tsconfig.json`（`pnpm typecheck` 只查错、不出文件） |
+| 构建产物 | `dist/`，push 后由 GitHub Actions 发布到 Pages |
+| CI 三件套 | Actions 里 `pnpm install --frozen-lockfile` → `pnpm build` |
 
-> `npm ci` + lockfile + `cache: npm`，是 Node 项目 CI 的标准三件套。
+想拥有一个这样的站？「拥有你自己的 Daily」系列（从
+[1/4 · 在哪里写](../own-your-daily/1-write.md) 开始）从 fork 到上线
+带你走一遍，全程不需要写代码。
 
 ---
 
@@ -396,13 +320,15 @@ jobs:
 ## 附录 A：课程 Prompt（复制给 AI 助手即可开课）
 
 ```text
-你是我的 Node + TypeScript 入门导师。我是零基础，请用「给文档站写一个
-navigation.json 生成工具」作为贯穿案例，按下面四课教我，每课：
+你是我的 Node + TypeScript 入门导师。我是零基础。第一步请带我运行
+npx @docmd/core@latest init 建一个文档站、npm install、npm run dev
+马上启动，确认我能看到站点；然后以这个站为教材，按下面四课教我，每课：
 概念一句话 + 一个能跑的小例子 + 一个小练习。
-1) 基本技术：package.json / scripts / src/ 的分工，ESM 与 CJS 的区别
+1) 基本技术：package.json / scripts 的分工，ESM 与 CJS 的区别
 2) 使用第三方包：npm install、node: 内置模块、@types 类型包
 3) 依赖管理：lockfile、npm ci 与 npm install 的区别、npm audit
 4) 构建与工具链：tsconfig.json、tsc、eslint/prettier、CI 里的 npm ci
+最后带我看本仓库 innate-daily 的真实实现，把四课知识对号入座。
 要求：一次只讲一课；优先用真实项目文件举例；练习题要能在 5 分钟内做完；
 我答完再进下一课。
 ```
@@ -423,11 +349,11 @@ description: Node.js + TypeScript 零基础入门第一课。当用户想学习�
 
 # Node + TypeScript 入门第一课
 
-用「文档站 navigation.json 生成器」做贯穿案例，按顺序教四课，
-每课一个 5 分钟练习：
+第一步先用 `npx @docmd/core@latest init` 带学员建一个文档站并马上启动，
+以它为教材按顺序教四课，每课一个 5 分钟练习：
 
 1. **基本技术** — `package.json` 的 name/scripts/type、ESM 与 CJS；
-   演示 `npm init -y` → `npm run dev`。
+   演示 `npm install` → `npm run dev`，改 docs/ 看即时更新。
 2. **第三方包** — `npm install` / `-D`；`node:` 内置模块；`@types/node`
    为何必须装；演示读取 `docs/` 目录。
 3. **依赖管理** — `package-lock.json` vs `pnpm-lock.yaml`；`npm ci`
@@ -435,11 +361,14 @@ description: Node.js + TypeScript 零基础入门第一课。当用户想学习�
 4. **构建与工具链** — `tsconfig.json` 关键项、`tsc --noEmit`、npm scripts
    当作 Makefile 用、CI 中 `npm ci` + typecheck。
 
+收尾：带学员看本仓库 innate-daily 的真实实现（Vite SPA + 构建期内联
+Markdown + GitHub Pages），把四课知识对号入座。
+
 教学规则：一次一课；中文讲解、代码保持英文；每课结束出 1 道练习并等待
 作答；全部完成后给出「继续深入」的三个方向（单元测试、类型体操、打包成单文件）。
 ```
 
 ---
 
-下一步：在你的文档站项目里跑一遍 `npm run nav && npm run typecheck`，
-再把 `docs/` 交给 docmd 构建——你就完成了第一课的毕业项目。
+下一步：回到你 init 出来的项目，改一篇文档、跑一遍 `npm run build`，
+看看 `site/` 里出现了什么——你就完成了第一课的毕业项目。
