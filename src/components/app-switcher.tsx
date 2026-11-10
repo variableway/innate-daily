@@ -1,15 +1,16 @@
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { cn } from "@ui"
-import { SoftLayers, SoftPenLine } from "./icons/soft-icons"
+import { SoftLayers, SoftPenLine, SoftWrench } from "./icons/soft-icons"
 
 /**
- * 站点左上角的顶层切换：日常（笔记） ⇄ Collections（收藏的站点）。
- * writing / collections / landing 三处共用，任何页面左上角都能一键切换。
+ * 站点左上角的顶层切换：日常（笔记） ⇄ Collections（收藏的站点） ⇄ 编辑。
+ * writing / collections / landing / edit 四处共用，任何页面左上角都能一键切换。
  */
 export function AppSwitcher({ className }: { className?: string }) {
   const pathname = useLocation({ select: (location) => location.pathname })
   const navigate = useNavigate()
   const onCollections = pathname.startsWith("/collections")
+  const onEdit = pathname.startsWith("/edit")
 
   const itemClass = (active: boolean) =>
     cn(
@@ -47,6 +48,17 @@ export function AppSwitcher({ className }: { className?: string }) {
       >
         <SoftLayers className="size-3.5 shrink-0" data-icon />
         Collections
+      </button>
+      <button
+        type="button"
+        role="tab"
+        aria-selected={onEdit}
+        title="本地编辑"
+        className={itemClass(onEdit)}
+        onClick={() => navigate({ to: "/edit" })}
+      >
+        <SoftWrench className="size-3.5 shrink-0" data-icon />
+        编辑
       </button>
     </div>
   )

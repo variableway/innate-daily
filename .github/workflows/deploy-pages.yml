@@ -3,14 +3,8 @@ name: Deploy writing to GitHub Pages
 on:
   push:
     branches: [main, master]
-    paths:
-      - "use-cases/**"
-      - "docs/**"
-      - "src/**"
-      - "index.html"
-      - "package.json"
-      - "vite.config.ts"
-      - ".github/workflows/deploy-pages.yml"
+    # 不设 paths 过滤：本地编辑器可以写仓库里任意 .md（docs/、README、
+    # skills/**/SKILL.md 等），任何推送到 main 的改动都应触发重新构建。
   workflow_dispatch:
 
 permissions:

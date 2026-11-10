@@ -9,6 +9,7 @@ import { WritingPage } from "./pages/writing/page"
 import { WritingDetailPage } from "./pages/writing/[slug]/page"
 import { LandingPage } from "./pages/landing/page"
 import { CollectionsPage } from "./pages/collections/page"
+import { EditPage } from "./pages/edit/page"
 import { CategoryMenu } from "./components/category-menu"
 
 /** /writing 列表的筛选状态全部落在 URL 上，可从 landing 画廊卡片直接带入。
@@ -90,6 +91,12 @@ const collectionsRoute = createRoute({
   validateSearch: validateCollectionsSearch,
 })
 
+const editRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/edit",
+  component: EditPage,
+})
+
 const writingSlugRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/writing/$slug",
@@ -107,6 +114,7 @@ const routeTree = rootRoute.addChildren([
   writingRoute,
   landingRoute,
   collectionsRoute,
+  editRoute,
   writingSlugRoute,
   slugRoute,
 ])
