@@ -42,7 +42,7 @@ flowchart LR
 
 ```text
 我要在这个仓库（innate-daily）发一篇文章。
-动手之前，先完整读一遍 docs/markdown-usage.md，那是这个站的写作规范，
+动手之前，先完整读一遍 docs/basic/markdown-usage.md，那是这个站的写作规范，
 之后所有动作都要符合它，尤其是 frontmatter 字段和图片规则。
 我的文章主题是：（你写什么，比如：我家楼下面馆的观察）
 我的署名是：（你的名字）
@@ -113,8 +113,8 @@ Actions 页面变绿），然后用**手机浏览器**打开正式网址，看�
 - **构建** —— 网站把你的文章"装订"进网页的过程
 - **部署** —— 装订好的网页被放到正式网址上
 
-想再深入一点点（不看也完全没关系）：[Golang CLI 入门](golang-cli-101.md)
-和 [Node + TypeScript 入门](nodejs-typescript-101.md) 讲的就是帮你干活的
+想再深入一点点（不看也完全没关系）：[Golang CLI 入门](../basic/golang-cli-101.md)
+和 [Node + TypeScript 入门](../basic/nodejs-typescript-101.md) 讲的就是帮你干活的
 助手背后的工具是怎么造出来的。
 
 ## 附录：懒人版一句话指令
@@ -122,7 +122,7 @@ Actions 页面变绿），然后用**手机浏览器**打开正式网址，看�
 上面五步可以压缩成一句话发给助手，适合"我就想看看行不行"的人：
 
 ```text
-读 docs/markdown-usage.md 了解发文规范，然后一步步带我在这个仓库
+读 docs/basic/markdown-usage.md 了解发文规范，然后一步步带我在这个仓库
 发出我的第一篇文章：先问我主题和署名，写好后起本地预览让我确认，
 我确认后再提交推送。每一步开始前，用一句人话告诉我你要干什么。
 ```
