@@ -242,6 +242,14 @@ function PlazaCard({
           <span style={{ color: labelColorValue(post.category, meta.hue) }}>
             {post.category}
           </span>
+          {post.status === "draft" ? (
+            <span
+              className="text-muted-foreground border-border rounded-full border px-1.5 py-px text-[10px] leading-none"
+              title="草稿：站点文章列表默认不展示"
+            >
+              Draft
+            </span>
+          ) : null}
           {rest ? (
             <>
               <span className="plaza-dot" aria-hidden="true" />
@@ -287,6 +295,14 @@ function PlazaListRow({
           <span style={{ color: labelColorValue(post.category, meta.hue) }}>
             {post.category}
           </span>
+          {post.status === "draft" ? (
+            <span
+              className="text-muted-foreground border-border rounded-full border px-1.5 py-px text-[10px] leading-none"
+              title="草稿：站点文章列表默认不展示"
+            >
+              Draft
+            </span>
+          ) : null}
           {rest ? (
             <>
               <span className="plaza-dot" aria-hidden="true" />

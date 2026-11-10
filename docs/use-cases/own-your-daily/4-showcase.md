@@ -88,6 +88,6 @@ excerpt: "系列第四篇：Collections 是作品墙。做好的网站、工具�
 
 - 把网址印在名片、简历、社交主页上——它是你的一亩三分地；
 - 想知道这个站背后的工具是怎么造的，延伸阅读
-  [Node + TypeScript 入门](../basic/nodejs-typescript-101.md)——
+  [Node + TypeScript 入门](../../tutorials/basic/nodejs-typescript-101.md)——
   这个站就是一个 Node + TypeScript 项目。
   不看也完全没关系，你已经不需要它也能用这个站了。

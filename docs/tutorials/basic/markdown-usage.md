@@ -16,31 +16,33 @@ excerpt: "在本仓写一篇能被站点收录的文章需要知道的一切：�
 > 规则来自站点的实际实现（`src/lib/content/`、`src/components/markdown-preview.tsx`），
 > 不是泛泛的 Markdown 教程。
 
-## 1. 文章放哪：目录即分类
+## 1. 文章放哪：目录即展区
 
 站点在**构建期**用 `import.meta.glob` 把 `docs/**/*.md(x)` 内联进 bundle
 （运行时无 fs、无网络请求），所以新文章只要落进 `docs/` 就会被收录。
-目录结构本身就是分区：**分类 = 目录第一层**，frontmatter 里的 `category`
-不再作为分组维度，只留作参考。
+**目录结构本身就是分区**：`docs/` 第一层目录 = 展区（胶囊筛选、首页
+画廊都按它聚合），frontmatter 里的 `category` 不再作为分组维度，只留作参考。
 
-| 位置                  | vault       | 用途                                     |
-| --------------------- | ----------- | ---------------------------------------- |
-| `docs/*.md`           | `docs`      | 站点自身的说明文档（本文就在这里）        |
-| `docs/use-cases/**`   | `use-cases` | 用例文章（golang-cli-101、nodejs-101 等） |
+| 位置 | 展区 | 用途 |
+| --------------------- | --------- | ---------------------------------------- |
+| `docs/ideas/**` | `ideas` | 想法与方案草稿 |
+| `docs/research/**` | `research` | 调研报告 |
+| `docs/tutorials/**` | `tutorials` | 教程（basic 等子目录可继续分层） |
+| `docs/use-cases/**` | `use-cases` | 用例系列（own-your-daily 五篇等） |
 
 两条纪律：
 
-1. **`status` 必须是 `published` 才会展示**。`draft` / `archived` 的文章
-   默认不进文章列表（写作台默认按已发布过滤）。
-2. **本地图片不会进 bundle**。构建期只内联 markdown 文本，图片请用外链 URL；
-   相对路径图片在站点上会挂。
+1. **`status` 必须是 `published` 才会出现在面向访客的列表里**；
+   `draft` 的文章在写作台可见（带 Draft 徽标），但不进正式列表。
+2. **本地图片不会进 bundle**。构建期只内联 markdown 文本，图片要么用
+   外链 URL，要么放进 `public/docs-media/`（见 §3.5）。
 
 开发时可以用 `VITE_WRITING_SOURCE` 只加载一棵子树，加快启动与构建：
 
 ```bash
 pnpm dev              # 全部 docs/**（默认）
-pnpm dev:docs         # 仅 vault docs（docs/*.md）
-pnpm dev:use-cases    # 仅 vault use-cases（docs/use-cases/**）
+pnpm dev:docs         # 仅 tutorials / research / ideas 展区
+pnpm dev:use-cases    # 仅 use-cases 展区
 ```
 
 ## 2. Frontmatter 字段
@@ -140,8 +142,23 @@ export function hello(name: string): string {
 ```markdown
 [站内文字链接](https://example.com)
 <https://example.com>          ← GFM 自动链接
-![图片描述](https://…/img.png) ← 用外链 URL（见 §1 纪律 2）
+![图片描述](https://…/img.png) ← 方式一：外链 URL
+![图片描述](docs-media/img.png) ← 方式二：public/docs-media/ 下的相对路径
 ```
+
+图片两条路：
+
+1. **外链 URL**——最省事，图床 / GitHub raw 都可以；
+2. **仓库内图片**——把图片放进 `public/docs-media/`，Markdown 里写
+   相对路径 `docs-media/图片名`。`public/` 会在构建时原样拷进产物根目录，
+   哈希路由下相对路径正好解析到站点根（本地 dev 与 GitHub Pages 都成立）。
+   不要写 `/` 开头的绝对路径——站点部署在仓库子路径上，绝对路径会 404；
+   也不要把图片放 `docs/` 里——构建期只内联 Markdown 文本，目录里的
+   图片文件不会被带上。
+
+下面就是方式二的实拍（本仓库 `public/docs-media/sample-cover.webp`）：
+
+![docs-media 图片示例：Innate Daily 首页封面](docs-media/sample-cover.webp)
 
 ## 4. 图表：mermaid（流程图 / 路程图 / 时序图……）
 

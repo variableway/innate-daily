@@ -296,7 +296,7 @@ GitHub Pages 上的静态 SPA。细节见
 | CI 三件套 | Actions 里 `pnpm install --frozen-lockfile` → `pnpm build` |
 
 想拥有一个这样的站？「拥有你自己的 Daily」系列（从
-[1/4 · 在哪里写](../own-your-daily/1-write.md) 开始）从 fork 到上线
+[1/4 · 在哪里写](../../use-cases/own-your-daily/1-write.md) 开始）从 fork 到上线
 带你走一遍，全程不需要写代码。
 
 ---

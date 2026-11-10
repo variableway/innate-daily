@@ -42,7 +42,7 @@ excerpt: "对应 issue #12 的总纲：前端设计相关 SKILL 的四路调研�
 
 ## 与既有研究的关系
 
-- [executable-tutorials-research](../plans/executable-tutorials-research.md)（issue #9）解决「内容怎么可执行」；
+- [executable-tutorials-research](../ideas/executable-tutorials-research.md)（issue #9）解决「内容怎么可执行」；
   本轮解决「内容与页面怎么好看、可解释」——两者正交，可组合：
   可执行教程 + 视觉验收 = 完整的内容工程闭环。
 

@@ -37,6 +37,7 @@ export function WritingPage() {
     type: post.type,
     vault: post.vault,
     folder: post.folder,
+    status: post.status,
   }))
 
   return (

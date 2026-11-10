@@ -45,6 +45,10 @@ const FOLDER_META: Record<string, LabelMeta> = {
   specs: { icon: SoftFileText, hue: 210 },
   docs: { icon: SoftFileText, hue: 210 },
   "use-cases": { icon: SoftPackage, hue: 20 },
+  // docs/ 下的展区（第一层目录）。
+  ideas: { icon: SoftLightbulb, hue: 250 },
+  research: { icon: SoftFlask, hue: 300 },
+  tutorials: { icon: SoftGraduationCap, hue: 60 },
 }
 
 /**

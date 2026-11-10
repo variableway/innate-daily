@@ -11,4 +11,6 @@ export interface BlogListItem {
   readingTime: number
   vault?: string
   folder?: string
+  /** 写作台包含草稿；列表与卡片据此显示 Draft 徽标。 */
+  status?: "published" | "draft" | "archived"
 }

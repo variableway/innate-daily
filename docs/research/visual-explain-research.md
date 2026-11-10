@@ -12,7 +12,7 @@ excerpt: "issue #12 ④：用可视化解释问题/教程/concept 有哪些可�
 # 用可视化方式 explain 问题、教程与概念
 
 > 范围：什么内容适合可视化解释、有哪些工具/内容可用、本站怎么落地。
-> 关联：[executable-tutorials-research](../plans/executable-tutorials-research.md)（issue #9，
+> 关联：[executable-tutorials-research](../ideas/executable-tutorials-research.md)（issue #9，
 > 「可执行」维度）——本文补「可看/可玩」维度。
 
 ## 0. 结论速览

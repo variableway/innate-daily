@@ -137,9 +137,9 @@ go list -m all         # 看当前所有依赖及版本
 
 ## 5. 那文档站呢？（Node 体系）
 
-`docs/` 文档站是另一个世界：**Node + pnpm + docmd**，构建思路和 Go 一样——
-`pnpm install`（≈ go mod tidy）→ `pnpm build`（≈ go build）→ 产物在 `site/`。
-详细对照表见 [How to Build](../usage/how-to-build.md)。
+`docs/` 文档站是另一个世界：**Node + pnpm + Vite**，构建思路和 Go 一样——
+`pnpm install`（≈ go mod tidy）→ `pnpm build`（≈ go build）→ 产物在 `dist/`。
+具体对照见《Node + TypeScript 入门》。
 
 ---
 

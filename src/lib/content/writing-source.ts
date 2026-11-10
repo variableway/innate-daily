@@ -4,7 +4,7 @@ export type WritingVault = "content" | "docs" | "use-cases"
 /**
  * 内容源模式。文档根已统一为 docs/，模式只决定读 docs/ 的哪棵子树：
  * - all（默认）→ docs/**
- * - docs → docs/content/**
+ * - docs → docs/ 下除 use-cases 外的展区（tutorials / research / ideas …）
  * - use-cases → docs/use-cases/**
  */
 export function resolveWritingSource(raw: string | undefined): WritingSource {

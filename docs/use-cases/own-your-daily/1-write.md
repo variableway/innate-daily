@@ -55,7 +55,7 @@ status: published
   你电脑里的图片路径不行。
 
 完整的字段说明和语法（表格、代码高亮、画图）都在
-[Markdown 写作指南](../basic/markdown-usage.md)，用到再查，不用背。
+[Markdown 写作指南](../../tutorials/basic/markdown-usage.md)，用到再查，不用背。
 
 ## 三种写法，按你的情况挑
 
@@ -79,7 +79,7 @@ fork 之后，你在浏览器里就能写：打开你自己仓库的 `docs/use-c
 把这段话发给你的 AI 编程助手（Claude Code、Codex……）：
 
 ```text
-读 docs/basic/markdown-usage.md 了解这个站的发文规范，然后帮我在
+读 docs/tutorials/basic/markdown-usage.md 了解这个站的发文规范，然后帮我在
 docs/use-cases/ 新建一篇文章。主题：（你想写什么）。
 署名：（你的名字）。写完用一句人话告诉我文件放在哪、
 下一步怎么让它出现在我的网站上。

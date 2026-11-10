@@ -6,8 +6,8 @@ import {
 } from "@tanstack/react-router"
 import { cn } from "@ui"
 import { useWritingContent } from "../lib/content/use-writing-content"
-import { countByCategory } from "../lib/writing/filter-posts"
-import { categoryMeta } from "../lib/writing/category-meta"
+import { postZoneId } from "../lib/writing/filter-posts"
+import { categoryMeta, folderMeta } from "../lib/writing/category-meta"
 import { prettyLabel } from "../lib/writing/pretty-label"
 import { sourceIcon, sourceLabel } from "../lib/collections/source"
 import {
@@ -53,6 +53,7 @@ export function CategoryMenu() {
   const pathname = useLocation({ select: (location) => location.pathname })
   const search = useSearch({ strict: false }) as {
     category?: string
+    folder?: string
     source?: string
     featured?: string
   }
@@ -65,7 +66,7 @@ export function CategoryMenu() {
     setView(pathname.startsWith("/collections") ? "collections" : "notes")
   }, [pathname])
 
-  const noteCategories = useMemo(() => countByCategory(posts), [posts])
+  const hasZones = posts.length > 0
   const collections = useMemo(() => getAllCollections(), [])
 
   const stripRef = useRef<HTMLDivElement>(null)
@@ -76,9 +77,9 @@ export function CategoryMenu() {
   // Notes/Collections 切换器的下拉开关（单击向上弹出）。
   const [viewMenuOpen, setViewMenuOpen] = useState(false)
 
-  function selectNoteCategory(id: string | null) {
+  function selectNoteFolder(next: string | null) {
     setOpen(false)
-    navigate({ to: "/writing", search: id ? { category: id } : {} })
+    navigate({ to: "/writing", search: next ? { folder: next } : {} })
   }
 
   function selectCollectionFilter(next: CollectionsSearch) {
@@ -87,29 +88,36 @@ export function CategoryMenu() {
   }
 
   const noteOptions: MenuOption[] = useMemo(() => {
-    const activeCategory = pathname.startsWith("/writing") ? (search.category ?? null) : null
+    // 展区维度：All + docs/ 子目录 + use-cases（label 剥掉 docs/ 前缀）。
+    const activeFolder = pathname.startsWith("/writing") ? (search.folder ?? null) : null
+    const zones = new Map<string, number>()
+    for (const post of posts) {
+      const id = postZoneId(post)
+      zones.set(id, (zones.get(id) ?? 0) + 1)
+    }
     return [
       {
         key: "__all__",
         label: "All",
         icon: SoftPenLine,
         count: posts.length,
-        active: activeCategory === null,
-        onSelect: () => selectNoteCategory(null),
+        active: activeFolder === null,
+        onSelect: () => selectNoteFolder(null),
       },
-      ...noteCategories.map((category) => ({
-        key: category.id,
-        label: category.id,
-        icon: categoryMeta(category.id).icon,
-        hue: categoryMeta(category.id).hue,
-        count: category.count,
-        active: activeCategory === category.id,
-        onSelect: () =>
-          selectNoteCategory(activeCategory === category.id ? null : category.id),
-      })),
+      ...[...zones.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([zone, count]) => ({
+          key: zone,
+          label: zone.replace(/^docs\//, ""),
+          icon: folderMeta(zone.replace(/^docs\//, "")).icon,
+          hue: folderMeta(zone.replace(/^docs\//, "")).hue,
+          count,
+          active: activeFolder === zone || (activeFolder?.startsWith(`${zone}/`) ?? false),
+          onSelect: () => selectNoteFolder(activeFolder === zone ? null : zone),
+        })),
     ]
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [noteCategories, posts.length, pathname, search.category])
+  }, [posts, pathname, search.folder])
 
   const collectionOptions: MenuOption[] = useMemo(() => {
     const onCollections = pathname.startsWith("/collections")
@@ -199,7 +207,7 @@ export function CategoryMenu() {
     }
   }, [open, viewMenuOpen])
 
-  if (noteCategories.length === 0 && collections.length === 0) return null
+  if (!hasZones && collections.length === 0) return null
 
   function slide(direction: 1 | -1) {
     const el = stripRef.current

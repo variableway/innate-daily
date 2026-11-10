@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { useNavigate } from "@tanstack/react-router"
-import { SoftArrowRight } from "../../components/icons/soft-icons"
+import { SoftArrowRight, SoftArrowUpRight } from "../../components/icons/soft-icons"
 import { Badge, Button, ThemeSelector } from "@ui"
 import { AppSwitcher } from "../../components/app-switcher"
 import { GalleryCard } from "../../components/landing/gallery-card"
@@ -10,44 +10,61 @@ import {
   WritingLoadingState,
 } from "../../components/writing/writing-status"
 import { useWritingContent } from "../../lib/content/use-writing-content"
-import { buildFolderTree } from "../../lib/writing/folder-tree"
-import { countByCategory, postFolderId } from "../../lib/writing/filter-posts"
-import { labelChipStyle } from "../../lib/writing/label-color"
+import { countByCategory, postZoneId } from "../../lib/writing/filter-posts"
+import { labelChipStyle, labelColorValue } from "../../lib/writing/label-color"
 import { categoryMeta } from "../../lib/writing/category-meta"
+import { collectionCoverUrl } from "../../lib/collections/cover"
+import { coverArtSvg } from "../../lib/landing/cover-art"
 import { getAllCollections } from "../../lib/collections/data"
 
 /**
  * Landing：画廊式首页。
- * - Collections（AI 生成的站点收藏）作为独立展区放在最前。
- * - Notes（内容目录）作为独立展区放在下面，点击携带 ?folder= 进入 /writing 列表。
+ * - 作品（Collections）作为独立展区放在最前：卡片可跳转作品墙，
+ *   并展示「n 篇相关笔记」——按作品 tags 与笔记 tags 的交集计算，
+ *   点击携带 ?tag= 进入 /writing 列表。
+ * - 展区（docs/ 第一层目录 + use-cases）作为 Notes 画廊，点击携带 ?folder=。
  * - Categories chips 同理携带 ?category=。
  */
 export function LandingPage() {
   const { posts, loading, error } = useWritingContent()
   const navigate = useNavigate()
 
-  const folders = useMemo(() => buildFolderTree(posts), [posts])
   const categories = useMemo(() => countByCategory(posts), [posts])
   const collections = useMemo(() => getAllCollections(), [])
 
-  /** 各展区的最新文章标题（按日期倒序取 3 条）。 */
-  const latestByFolder = useMemo(() => {
-    const map = new Map<string, string[]>()
-    const sorted = [...posts].sort((a, b) => (a.date < b.date ? 1 : -1))
-    for (const node of folders) {
-      map.set(
-        node.id,
-        sorted
-          .filter((post) => {
-            const id = postFolderId(post)
-            return id === node.id || id.startsWith(`${node.id}/`)
-          })
+  /** 展区（zone）：docs/ 第一层目录 + use-cases，label 剥掉 docs/ 前缀。 */
+  const zoneGroups = useMemo(() => {
+    const map = new Map<string, typeof posts>()
+    for (const post of posts) {
+      const id = postZoneId(post)
+      map.set(id, [...(map.get(id) ?? []), post])
+    }
+    return [...map.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([id, list]) => ({
+        id,
+        name: id.replace(/^docs\//, ""),
+        count: list.length,
+        latest: [...list]
+          .sort((a, b) => (a.date < b.date ? 1 : -1))
           .slice(0, 3)
-          .map((post) => post.title)
+          .map((post) => post.title),
+      }))
+  }, [posts])
+
+  /** 作品 → 相关笔记：笔记 tags 与作品 tags 的交集；顺带给出跳转用的 tag。 */
+  const relatedByCollection = useMemo(() => {
+    const map = new Map<string, { count: number; tag: string | null }>()
+    for (const item of collections) {
+      const matched = posts.filter((post) =>
+        post.tags.some((tag) => item.tags.includes(tag))
       )
+      const tag =
+        item.tags.find((t) => matched.some((post) => post.tags.includes(t))) ?? null
+      map.set(item.id, { count: matched.length, tag })
     }
     return map
-  }, [posts, folders])
+  }, [posts, collections])
 
   if (loading) return <WritingLoadingState />
   if (error) return <WritingErrorState message={error} />
@@ -55,7 +72,7 @@ export function LandingPage() {
     return <WritingEmptyState message="No published posts." />
   }
 
-  function openFolder(id: string) {
+  function openZone(id: string) {
     navigate({ to: "/writing", search: { folder: id } })
   }
 
@@ -82,9 +99,9 @@ export function LandingPage() {
               Notes, curated like a gallery.
             </h1>
             <p className="text-muted-foreground max-w-xl text-sm leading-relaxed sm:text-base">
-              Collections 在前，Notes 在后。
-              共 {posts.length} 篇笔记，{folders.length} 个目录，
-              {categories.length} 个分类，{collections.length} 个收藏。
+              作品在前，展区在后。
+              共 {posts.length} 篇笔记，{zoneGroups.length} 个展区，
+              {categories.length} 个分类，{collections.length} 个作品。
             </p>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               <Button
@@ -101,7 +118,7 @@ export function LandingPage() {
                   size="sm"
                   onClick={() => navigate({ to: "/collections", search: {} })}
                 >
-                  进入全部收藏
+                  进入全部作品
                   <SoftArrowRight data-icon="inline-end" />
                 </Button>
               ) : null}
@@ -112,7 +129,7 @@ export function LandingPage() {
             <section className="flex flex-col gap-3">
               <div className="flex items-baseline justify-between gap-2">
                 <h2 className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-                  Collections
+                  Collections · 作品
                 </h2>
                 <button
                   type="button"
@@ -124,15 +141,83 @@ export function LandingPage() {
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {collections.map((item) => (
-                  <GalleryCard
-                    key={item.id}
-                    name={item.title}
-                    count={item.tags.length}
-                    latest={[item.description, ...item.tags]}
-                    onOpen={() => navigate({ to: "/collections" })}
-                  />
-                ))}
+                {collections.map((item) => {
+                  const meta = categoryMeta(item.category)
+                  const related = relatedByCollection.get(item.id)
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="plaza-card collection-card"
+                      data-tile={item.id}
+                      onClick={() => navigate({ to: "/collections", search: {} })}
+                    >
+                      {item.thumbnail ? (
+                        <span
+                          className="plaza-media collection-cover"
+                          style={{
+                            backgroundImage: `url(${collectionCoverUrl(item.thumbnail)})`,
+                          }}
+                          aria-hidden="true"
+                        />
+                      ) : (
+                        <span
+                          className="plaza-media"
+                          aria-hidden="true"
+                          dangerouslySetInnerHTML={{
+                            __html: coverArtSvg(item.title, meta.hue, { slice: true }),
+                          }}
+                        />
+                      )}
+                      <div className="plaza-card-body">
+                        <div className="plaza-kicker">
+                          <span style={{ color: labelColorValue(item.category, meta.hue) }}>
+                            {item.category}
+                          </span>
+                          <span className="plaza-dot" aria-hidden="true" />
+                          <span>{item.date}</span>
+                        </div>
+                        <h3 className="plaza-title">{item.title}</h3>
+                        <p className="plaza-judgment">{item.description}</p>
+                        <div className="plaza-chips">
+                          {item.tags.slice(0, 3).map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="label-chip"
+                              style={labelChipStyle(tag)}
+                            >
+                              {tag}
+                            </Badge>
+                          ))}
+                        </div>
+                        {related && related.count > 0 ? (
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            title={`按 tag「${related.tag}」筛选相关笔记`}
+                            className="text-muted-foreground hover:text-foreground mt-1 inline-flex cursor-pointer items-center gap-1 text-xs transition-colors"
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              if (related.tag) {
+                                navigate({
+                                  to: "/writing",
+                                  search: { tag: related.tag },
+                                })
+                              }
+                            }}
+                          >
+                            {related.count} 篇相关笔记
+                            <SoftArrowRight className="size-3.5" data-icon />
+                          </span>
+                        ) : null}
+                      </div>
+                      <span className="plaza-go" aria-hidden="true">
+                        <SoftArrowUpRight size={14} />
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </section>
           ) : null}
@@ -152,13 +237,13 @@ export function LandingPage() {
               </button>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {folders.map((node) => (
+              {zoneGroups.map((zone) => (
                 <GalleryCard
-                  key={node.id}
-                  name={node.name}
-                  count={node.count}
-                  latest={latestByFolder.get(node.id) ?? []}
-                  onOpen={() => openFolder(node.id)}
+                  key={zone.id}
+                  name={zone.name}
+                  count={zone.count}
+                  latest={zone.latest}
+                  onOpen={() => openZone(zone.id)}
                 />
               ))}
             </div>
@@ -175,11 +260,11 @@ export function LandingPage() {
                     key={category.id}
                     variant="outline"
                     className="label-chip cursor-pointer"
-                    style={labelChipStyle(category.id, categoryMeta(category.id).hue)}
+                    style={labelChipStyle(category.id)}
                     onClick={() => openCategory(category.id)}
                   >
                     {category.id}
-                    <span className="ml-1 tabular-nums opacity-70">
+                    <span className="text-muted-foreground ml-1 tabular-nums">
                       {category.count}
                     </span>
                   </Badge>

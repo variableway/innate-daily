@@ -50,3 +50,16 @@ export function countByCategory(
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([id, count]) => ({ id, count }))
 }
+
+/**
+ * 展区 = 内容的第一层目录（「目录即展区」）。
+ * - docs/ 子目录（ideas / research / tutorials …）→ `docs/<子目录>`
+ * - use-cases vault（如 use-cases/own-your-daily）→ `use-cases`
+ * 底部胶囊与 landing 画廊都按展区聚合，label 展示时剥掉 `docs/` 前缀。
+ */
+export function postZoneId(post: Pick<FilterablePost, "vault" | "folder">): string {
+  const vault = post.vault || "content"
+  if (vault === "use-cases") return "use-cases"
+  const first = (post.folder ?? "").split("/").filter(Boolean)[0]
+  return first ? `docs/${first}` : vault
+}

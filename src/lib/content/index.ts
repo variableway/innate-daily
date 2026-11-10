@@ -17,10 +17,10 @@ function allPosts(): WritingPost[] {
 }
 
 export function getWritingMeta(options?: {
-  status?: PostMeta["status"]
+  status?: PostMeta["status"] | "all"
 }): WritingPost[] {
   const status = options?.status ?? "published"
-  return allPosts().filter((post) => post.status === status)
+  return status === "all" ? allPosts() : allPosts().filter((post) => post.status === status)
 }
 
 export function getWriting(slug: string): WritingPost | undefined {

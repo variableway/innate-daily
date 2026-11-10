@@ -122,8 +122,8 @@ flowchart LR
 写内容 → typecheck 查错 → build 打包 → push → Actions 云端构建 → Pages 上线
 ```
 
-想深究任何一环时再看：[Node + TypeScript 入门](../basic/nodejs-typescript-101.md)
-讲这些工具是怎么造的，[Markdown 写作指南](../basic/markdown-usage.md)
+想深究任何一环时再看：[Node + TypeScript 入门](../../tutorials/basic/nodejs-typescript-101.md)
+讲这些工具是怎么造的，[Markdown 写作指南](../../tutorials/basic/markdown-usage.md)
 是站点写作规范的本体。不看也行——你的站已经上线了。
 
 ## 最后的验收

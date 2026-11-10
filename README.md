@@ -1,67 +1,86 @@
-# daily-work — Writing 静态站（@innate/daily）
+# innate-daily — 个人写作与作品展示站（@innate/daily）
 
-Vite + React 19 + TanStack Router（hash 路由）的写作内容浏览工作台。位于 `apps/daily-work/`。
+Vite + React 19 + TanStack Router（hash 路由）的纯静态写作站：
+文档在构建期内联进 bundle，整站可部署到 GitHub Pages。
+**依赖全部来自公开 npm 源，fork 即可构建**，不依赖任何私有包。
 
 ## 快速开始
 
-在 **fe-templates 根**（workspace 能解析 `@innate/ui`）：
-
 ```bash
-pnpm --filter @innate/daily dev
-# → http://localhost:4016/#/   聚合本仓 docs/ 全部内容
-
-VITE_WRITING_SOURCE=docs pnpm --filter @innate/daily dev
-# 仅 docs/*.md（站点说明文档）
-
-VITE_WRITING_SOURCE=use-cases pnpm --filter @innate/daily dev
-# 仅 docs/use-cases/（用例文章）
+pnpm install
+pnpm dev          # → http://localhost:4016/
+pnpm build        # → dist/（+ 404.html 兜底）
+pnpm preview      # 本地预览 dist
 ```
 
-或在本目录直接 `./dev.sh`（自动选择 workspace 根或本仓 node_modules 启动）。
+推送 `main` 后 GitHub Actions 自动构建并发布到 GitHub Pages
+（见 `.github/workflows/deploy-pages.yml`，任何推送都会触发）。
 
-## 本地私有源（@innate/ui 供给链）
+## docs/ 目录结构（目录即展区）
 
-`@innate/ui` 没发到 npm，本地开发走 **127.0.0.1:4873 的 Verdaccio 私有源**。
-每个命令（`dev` / `build` / `test` / …）都自带 `pnpm run setup` 前置，自动完成：
-起私有源 → 发布基础仓 `@innate/*` → 装依赖 → 同步到最新版本，**无需手工恢复**。
+内容在**构建期**经 `import.meta.glob(?raw)` 内联进 bundle（运行时无 fs、
+无网络请求）。`docs/` 下的**第一层目录就是展区**——底部胶囊筛选、
+首页画廊、写作台目录树都按它聚合：
 
-```bash
-pnpm run setup          # 手动跑一遍供给链（幂等，正常时几秒）
-pnpm run setup:latest   # 基础仓改了源码还没升版本时：强制重发再同步（本地版本号会递增）
-```
+| 目录 | 展区 | 用途 |
+| ------------------------- | ----------- | ---------------------------------------------- |
+| `docs/ideas/**`           | `ideas`     | 想法与方案草稿（含 dsh-plugin 调研）           |
+| `docs/research/**`        | `research`  | 调研报告（前端设计 SKILL 系列等）              |
+| `docs/tutorials/basic/**` | `tutorials` | 教程（Golang CLI 入门、Node + TS 入门、写作规范） |
+| `docs/use-cases/**`       | `use-cases` | 用例系列（own-your-daily 五篇：建站/部署/发文/作品/Agent 全程） |
 
-- 首次使用需要 `innate-fe-cli`，并配置基础仓：`innate-fe-cli fe-root set <innate-fe 路径>`。
-- 基础仓发新版后：`pnpm run setup` 即可跟上（`@innate/ui` 约束为 `*`，永远解析最新发布）。
-- CI 不走这条链路（deploy-pages 用注入式 workspace 链接 `packages/ui`，守卫会自动跳过）。
+- 文章的可见性由 frontmatter 的 `status` 控制：`published` 出现在
+  正式列表；`draft` 在写作台可见（带 Draft 徽标），不进正式列表。
+- 构建范围可用 `VITE_WRITING_SOURCE` 收窄：`all`（默认，`docs/**`）、
+  `docs`（tutorials / research / ideas）、`use-cases`。
+- 写作规范（frontmatter、GFM 语法、mermaid 图表、图片放置）见
+  [`docs/tutorials/basic/markdown-usage.md`](docs/tutorials/basic/markdown-usage.md)。
 
-## 在哪里写文件
+## 本地编辑器
 
-内容在**构建期**经 `import.meta.glob(?raw)` 内联进 bundle（运行时无 fs、无网络请求）。把 Markdown / MDX 文件放到以下目录即可被站点收录：
+站内自带编辑入口：左上角「编辑」或 `/#/edit`。
 
-| 目录                | 用途                                                       |
-| ------------------- | ---------------------------------------------------------- |
-| `docs/*.md`         | 站点说明文档（`markdown-usage.md` 等）→ vault `docs`        |
-| `docs/use-cases/`   | 用例文章（`golang-cli-101`、`nodejs-typescript-101`）→ vault `use-cases` |
+- **连接仓库文件夹**（Chrome / Edge 的 File System Access API）后，
+  可直接在 UI 里编辑 `docs/` 下任意 Markdown 与
+  `src/data/collections.json`，保存即写回本地文件；
+- 支持 Markdown 实时预览与 collections.json 的 JSON 校验 + 卡片预览；
+- 未连接文件夹时为只读模式（浏览构建在站内的文档，支持复制 / 下载）。
 
-文档根已统一为 `docs/`，子目录结构直接决定 vault 与目录树（「目录即展区」）。
-通过 `VITE_WRITING_SOURCE` 控制内联范围：未设置 / `all`（默认，`docs/**`）、`docs`（仅 `docs/*.md`）、`use-cases`（仅 `docs/use-cases/**`）。
+编辑保存 = 写回本地文件；发布 = git push（交给 Agent 的 deploy skill
+或手动 push），推送后 Pages 自动重建。
 
-写作规范（frontmatter 字段、基本语法、mermaid 图表）见 [`docs/markdown-usage.md`](docs/markdown-usage.md)。
+## Agent skills（`skills/`）
 
-- Markdown 渲染：react-markdown + remark-gfm + rehype-highlight + rehype-slug；mermaid 以 ESM min 产物别名接入（`MermaidBlock`，主题跟随站点）。
-- 路由：hash 路由（`createHashHistory`）：`/`、`/writing`（列表）、`/writing/$slug`（详情）、`/landing`。
+仓库自带四个可直接安装的 Agent skill（复制到 `~/.codex/skills/` 或
+`~/.claude/skills/` 即可）：
+
+| skill | 用途 |
+| --------------- | ------------------------------------------------------ |
+| `create-repo`   | 创建 GitHub / Gitee 仓库，注册登录环节交互引导         |
+| `deploy`        | 部署到 Pages，完工后汇报改了什么 / 为什么 / 结果在哪   |
+| `writing`       | 按本站规范写作发文（规范源：docs/tutorials/basic）     |
+| `collections`   | 把作品加入首页作品墙                                   |
+
+配套系列文章：[`docs/use-cases/own-your-daily/`](docs/use-cases/own-your-daily/1-write.md)
+——从建站到上线到让 Agent 替你跑完全程，共五篇。
+
+## 作品墙（Collections）
+
+作品数据在 `src/data/collections.json`，封面图放
+`public/collections-covers/`（不放封面则自动生成程序化封面）。
+首页与 `/#/collections` 按作品 tags 与笔记 tags 的交集展示
+「n 篇相关笔记」，点击直达筛选后的写作台。
 
 ## 命令
 
 ```bash
-pnpm --filter @innate/daily dev            # dev（4016）；docs 模式见上
-pnpm --filter @innate/daily build          # vite build + 404 兜底 → dist/
-pnpm --filter @innate/daily preview        # 预览 dist
-pnpm --filter @innate/daily typecheck      # tsc --noEmit
-pnpm --filter @innate/daily lint           # oxlint src
-pnpm --filter @innate/daily test           # vitest run
-pnpm --filter @innate/daily setup          # 供给链自检（各命令已自动前置）
+pnpm dev           # dev（4016）；VITE_WRITING_SOURCE 收窄构建范围
+pnpm build         # vite build + 404 兜底 → dist/
+pnpm preview       # 预览 dist
+pnpm typecheck     # tsc --noEmit
+pnpm lint          # oxlint src
+pnpm test          # vitest run
 ```
 
-以上每个命令都前置 `pnpm run setup`（见「本地私有源」一节）；在本目录直跑
-`pnpm dev` / `pnpm test` 等效果相同。
+UI 组件（shadcn 风格）已 vendor 进 `src/components/ui/`（统一经 `@ui`
+别名导入），无需外部 UI 包。
