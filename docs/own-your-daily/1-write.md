@@ -20,6 +20,8 @@ excerpt: "系列第一篇：这个站点 fork 下来就是你自己的。文章�
 2. [如何直接部署](own-your-daily-2-deploy.md)
 3. [马上看到效果](own-your-daily-3-see-it.md)
 4. [把自己的作品加入 Collections](own-your-daily-4-showcase.md)
+5. [让 Agent 替你跑完全程](own-your-daily-5-agent.md)——装上仓库自带的
+   四个 skill，以上全部变成对话
 
 ## 文章 = 一个 Markdown 文件
 
