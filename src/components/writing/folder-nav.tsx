@@ -16,10 +16,15 @@ export function FolderNav({
   onSelect: (id: string) => void
   depth?: number
 }) {
-  if (nodes.length === 0) return null
+  // 「docs 不要专门做 folder」：docs 根节点只作命名空间，展示时把它的
+  // 子目录直接提升到当前层级（node.id 不变，筛选不受影响）。
+  const lifted = nodes.flatMap((node) =>
+    node.name === "docs" ? node.children : [node]
+  )
+  if (lifted.length === 0) return null
   return (
     <ul className="flex flex-col gap-0.5">
-      {nodes.map((node) => (
+      {lifted.map((node) => (
         <FolderRow
           key={node.id}
           node={node}

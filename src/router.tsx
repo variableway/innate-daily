@@ -10,6 +10,7 @@ import { WritingDetailPage } from "./pages/writing/[slug]/page"
 import { LandingPage } from "./pages/landing/page"
 import { CollectionsPage } from "./pages/collections/page"
 import { EditPage } from "./pages/edit/page"
+import { AppSwitcher } from "./components/app-switcher"
 import { CategoryMenu } from "./components/category-menu"
 
 /** /writing 列表的筛选状态全部落在 URL 上，可从 landing 画廊卡片直接带入。
@@ -54,7 +55,9 @@ function validateCollectionsSearch(search: Record<string, unknown>): Collections
 function RootLayout() {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      {/* 全局悬浮分类菜单：所有页面共享，固定顶部居中 */}
+      {/* 全局悬浮视图切换：固定顶部居中，任何页面都存在。 */}
+      <AppSwitcher className="fixed top-3 left-1/2 z-50 -translate-x-1/2" />
+      {/* 全局悬浮分类菜单：所有页面共享，固定底部居中 */}
       <CategoryMenu />
       <Outlet />
     </div>

@@ -33,14 +33,13 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  ThemeSelector,
   cn,
   useIsMobile,
 } from "@ui"
 import { BlogViewer } from "./blog-viewer"
 import { FolderNav } from "./folder-nav"
+import { SidebarSettings } from "../sidebar-settings"
 import { Plaza, PlazaLayoutCapsule, type PlazaMode } from "./plaza"
-import { AppSwitcher } from "../app-switcher"
 import { PanelIcon } from "../panel-icon"
 import {
   SoftFileText,
@@ -513,13 +512,7 @@ function WritingNav({
       aria-label="Writing"
       className="bg-sidebar text-sidebar-foreground flex h-full min-h-0 flex-col"
     >
-      <div className="flex h-12 shrink-0 items-center gap-2 px-4">
-        <AppSwitcher />
-        <div className="ml-auto">
-          <ThemeSelector />
-        </div>
-      </div>
-      <div className="px-3 pb-3">
+      <div className="px-3 pt-3 pb-3">
         <InputGroup>
           <InputGroupAddon>
             <SoftSearch />
@@ -591,6 +584,11 @@ function WritingNav({
           </ul>
         </div>
       </ScrollArea>
+      {/* 侧栏底部：Settings（主题 + 本地编辑入口）。 */}
+      <div className="border-border bg-sidebar flex h-10 shrink-0 items-center gap-2 border-t px-3">
+        <SidebarSettings />
+        <span className="text-muted-foreground text-xs">Settings</span>
+      </div>
     </nav>
   )
 }

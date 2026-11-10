@@ -1,16 +1,16 @@
 import { useLocation, useNavigate } from "@tanstack/react-router"
 import { cn } from "@ui"
-import { SoftLayers, SoftPenLine, SoftWrench } from "./icons/soft-icons"
+import { SoftLayers, SoftPenLine } from "./icons/soft-icons"
 
 /**
- * 站点左上角的顶层切换：日常（笔记） ⇄ Collections（收藏的站点） ⇄ 编辑。
- * writing / collections / landing / edit 四处共用，任何页面左上角都能一键切换。
+ * 全局悬浮视图切换：日常（笔记） ⇄ Collections（作品）。
+ * 由 RootLayout 固定在页面顶部居中，任何页面都存在。
+ * 本地编辑入口在侧栏底部的 Settings 里（sidebar-settings.tsx）。
  */
 export function AppSwitcher({ className }: { className?: string }) {
   const pathname = useLocation({ select: (location) => location.pathname })
   const navigate = useNavigate()
   const onCollections = pathname.startsWith("/collections")
-  const onEdit = pathname.startsWith("/edit")
 
   const itemClass = (active: boolean) =>
     cn(
@@ -23,7 +23,7 @@ export function AppSwitcher({ className }: { className?: string }) {
       role="tablist"
       aria-label="切换视图"
       className={cn(
-        "bg-muted border-border flex h-8 shrink-0 items-center gap-0.5 rounded-full border p-0.5",
+        "border-border bg-background/80 shadow-lg flex h-8 shrink-0 items-center gap-0.5 rounded-full border p-0.5 backdrop-blur-md",
         className
       )}
     >
@@ -48,17 +48,6 @@ export function AppSwitcher({ className }: { className?: string }) {
       >
         <SoftLayers className="size-3.5 shrink-0" data-icon />
         Collections
-      </button>
-      <button
-        type="button"
-        role="tab"
-        aria-selected={onEdit}
-        title="本地编辑"
-        className={itemClass(onEdit)}
-        onClick={() => navigate({ to: "/edit" })}
-      >
-        <SoftWrench className="size-3.5 shrink-0" data-icon />
-        编辑
       </button>
     </div>
   )

@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Badge, Button, ScrollArea, cn } from "@ui"
-import { AppSwitcher } from "../../components/app-switcher"
+import { SidebarSettings } from "../../components/sidebar-settings"
 import { MarkdownPreview } from "../../components/markdown-preview"
 import { writingFiles } from "../../lib/content/bundled-files"
-import { SoftFileText, SoftFolder, SoftWrench } from "../../components/icons/soft-icons"
+import {
+  SoftChevronRight,
+  SoftFileText,
+  SoftFolder,
+  SoftWrench,
+} from "../../components/icons/soft-icons"
 
 /** File System Access API 的最小类型面（lib.dom 未收录 picker 入口）。 */
 interface PickableWindow {
@@ -36,6 +41,137 @@ interface EditableFile {
   path: string
   handle: FileSystemFileHandle
   kind: FileKind
+}
+
+/* ── 侧栏目录树 ── */
+
+interface TreeNode {
+  name: string
+  path: string
+  kind: "dir" | "file"
+  file?: EditableFile
+  bundled?: { path: string; text: string }
+  children: TreeNode[]
+}
+
+function buildTree(
+  entries: Array<{ path: string; file?: EditableFile; bundled?: { path: string; text: string } }>
+): TreeNode[] {
+  const root: TreeNode = { name: "", path: "", kind: "dir", children: [] }
+  for (const entry of entries) {
+    const parts = entry.path.split("/").filter(Boolean)
+    let cursor = root
+    parts.forEach((part, index) => {
+      const isLast = index === parts.length - 1
+      const path = parts.slice(0, index + 1).join("/")
+      let child = cursor.children.find(
+        (candidate) => candidate.name === part && candidate.kind === (isLast ? "file" : "dir")
+      )
+      if (!child) {
+        child = {
+          name: part,
+          path,
+          kind: isLast ? "file" : "dir",
+          children: [],
+        }
+        cursor.children.push(child)
+      }
+      if (isLast) {
+        child.file = entry.file
+        child.bundled = entry.bundled
+      }
+      cursor = child
+    })
+  }
+  const sortAndReturn = (nodes: TreeNode[]): TreeNode[] => {
+    nodes.sort((a, b) =>
+      a.kind === b.kind ? a.name.localeCompare(b.name) : a.kind === "dir" ? -1 : 1
+    )
+    nodes.forEach((node) => sortAndReturn(node.children))
+    return nodes
+  }
+  return sortAndReturn(root.children)
+}
+
+function FileTree({
+  nodes,
+  depth,
+  expanded,
+  onToggle,
+  activePath,
+  onSelectFile,
+}: {
+  nodes: TreeNode[]
+  depth: number
+  expanded: Set<string>
+  onToggle: (path: string) => void
+  activePath: string | null
+  onSelectFile: (node: TreeNode) => void
+}) {
+  if (nodes.length === 0) return null
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {nodes.map((node) => {
+        const isDir = node.kind === "dir"
+        const isOpen = expanded.has(node.path)
+        const active = !isDir && activePath === node.path
+        return (
+          <li key={`${node.kind}:${node.path}`}>
+            <div className="flex items-center" style={{ paddingLeft: `${depth * 0.75}rem` }}>
+              {isDir ? (
+                <button
+                  type="button"
+                  aria-label={isOpen ? `收起 ${node.name}` : `展开 ${node.name}`}
+                  aria-expanded={isOpen}
+                  onClick={() => onToggle(node.path)}
+                  className="text-muted-foreground hover:text-foreground inline-flex size-5 shrink-0 items-center justify-center rounded"
+                >
+                  <SoftChevronRight
+                    className={cn("size-3.5 transition-transform", isOpen && "rotate-90")}
+                    data-icon
+                  />
+                </button>
+              ) : (
+                <span className="size-5 shrink-0" />
+              )}
+              <button
+                type="button"
+                onClick={() => (isDir ? onToggle(node.path) : onSelectFile(node))}
+                data-active={active}
+                className={cn(
+                  "hover:bg-sidebar-accent flex min-w-0 flex-1 items-center gap-2 rounded-md py-1 pr-2 text-left text-xs transition-colors",
+                  "hover:text-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium",
+                  isDir ? "text-foreground/90" : "text-muted-foreground"
+                )}
+              >
+                {isDir ? (
+                  <SoftFolder className="size-3.5 shrink-0" data-icon />
+                ) : (
+                  <SoftFileText className="size-3.5 shrink-0" data-icon />
+                )}
+                <span className="min-w-0 flex-1 truncate">{node.name}</span>
+                {node.kind === "file" && node.file?.kind === "json" ? (
+                  <Badge variant="outline" className="shrink-0 text-[10px]">
+                    JSON
+                  </Badge>
+                ) : null}
+              </button>
+            </div>
+            {isDir && isOpen ? (
+              <FileTree
+                nodes={node.children}
+                depth={depth + 1}
+                expanded={expanded}
+                onToggle={onToggle}
+                activePath={activePath}
+                onSelectFile={onSelectFile}
+              />
+            ) : null}
+          </li>
+        )
+      })}
+    </ul>
+  )
 }
 
 /* ── IndexedDB：记住上次连接的目录 handle，下次进入免重选 ── */
@@ -104,7 +240,7 @@ async function scanDir(root: FileSystemDirectoryHandle): Promise<EditableFile[]>
   for (const rel of jsonLocations) {
     try {
       const handle = await root.getFileHandle(rel)
-      files.push({ path: `🗂 ${rel}`, handle, kind: "json" })
+      files.push({ path: rel, handle, kind: "json" })
     } catch {
       /* 选择的目录里没有该文件，跳过 */
     }
@@ -261,11 +397,38 @@ export function EditPage() {
     []
   )
 
+  /* 侧栏目录树：连接后用真实文件，未连接用 bundle 里的文档（只读）。 */
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set())
+  const fileTree = useMemo(
+    () =>
+      buildTree(
+        dir
+          ? files.map((file) => ({ path: file.path, file }))
+          : bundledFiles.map((f) => ({ path: f.path, bundled: f }))
+      ),
+    [dir, files, bundledFiles]
+  )
+  const toggleDir = useCallback((path: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) next.delete(path)
+      else next.add(path)
+      return next
+    })
+  }, [])
+  const selectTreeNode = useCallback(
+    (node: TreeNode) => {
+      if (node.file) openFile(node.file)
+      else if (node.bundled) openFile(null, node.bundled)
+    },
+    [openFile]
+  )
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* 顶栏 */}
       <header className="border-border bg-background/80 flex h-12 shrink-0 items-center gap-3 border-b px-4">
-        <AppSwitcher />
+        <SidebarSettings />
         <span className="text-muted-foreground flex items-center gap-1.5 text-xs">
           <SoftWrench className="size-3.5" />
           本地编辑
@@ -290,49 +453,32 @@ export function EditPage() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        {/* 左栏：文件列表 */}
+        {/* 左栏：目录树 */}
         <aside className="border-border w-64 shrink-0 border-r">
           <ScrollArea className="h-full">
             <div className="p-2">
               {dir ? (
-                files.map((f) => (
-                  <button
-                    key={f.path}
-                    type="button"
-                    onClick={() => openFile(f)}
-                    className={cn(
-                      "text-muted-foreground hover:bg-muted hover:text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
-                      active?.path === f.path && "bg-muted text-foreground font-medium"
-                    )}
-                  >
-                    <SoftFileText className="size-3.5 shrink-0" />
-                    <span className="truncate">{f.path}</span>
-                    {f.kind === "json" && (
-                      <Badge variant="outline" className="ml-auto shrink-0 text-[10px]">
-                        JSON
-                      </Badge>
-                    )}
-                  </button>
-                ))
+                <FileTree
+                  nodes={fileTree}
+                  depth={0}
+                  expanded={collapsed}
+                  onToggle={toggleDir}
+                  activePath={active?.path ?? null}
+                  onSelectFile={selectTreeNode}
+                />
               ) : (
                 <>
                   <p className="text-muted-foreground px-2 py-1.5 text-xs leading-relaxed">
                     只读模式：以下是构建进本站的文档。要直接编辑本地文件，请连接仓库文件夹。
                   </p>
-                  {bundledFiles.map((f) => (
-                    <button
-                      key={f.path}
-                      type="button"
-                      onClick={() => openFile(null, f)}
-                      className={cn(
-                        "text-muted-foreground hover:bg-muted hover:text-foreground flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs transition-colors",
-                        !active && bundledPath === f.path && "bg-muted text-foreground"
-                      )}
-                    >
-                      <SoftFileText className="size-3.5 shrink-0" />
-                      <span className="truncate">{f.path}</span>
-                    </button>
-                  ))}
+                  <FileTree
+                    nodes={fileTree}
+                    depth={0}
+                    expanded={collapsed}
+                    onToggle={toggleDir}
+                    activePath={bundledPath}
+                    onSelectFile={selectTreeNode}
+                  />
                 </>
               )}
             </div>

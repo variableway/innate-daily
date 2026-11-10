@@ -2,7 +2,6 @@ import { useMemo } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { SoftArrowRight, SoftArrowUpRight } from "../../components/icons/soft-icons"
 import { Badge, Button, ThemeSelector } from "@ui"
-import { AppSwitcher } from "../../components/app-switcher"
 import { GalleryCard } from "../../components/landing/gallery-card"
 import {
   WritingEmptyState,
@@ -83,7 +82,6 @@ export function LandingPage() {
   return (
     <div className="bg-background flex h-full min-h-0 flex-col overflow-hidden">
       <header className="border-border flex h-12 shrink-0 items-center gap-2 border-b px-4 sm:px-6">
-        <AppSwitcher />
         <span className="text-muted-foreground hidden text-sm font-semibold sm:inline">
           Innate Notes
         </span>
