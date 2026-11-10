@@ -1,7 +1,8 @@
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/jetbrains-mono";
 @import "@fontsource-variable/noto-sans-sc";
-@import "@innate/ui/globals.css";
+@import "tailwindcss";
+@import "./styles/tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -1,4 +1,4 @@
-import { buttonVariants, cn } from "@innate/ui"
+import { buttonVariants, cn } from "@ui"
 import { useParams } from "../../../lib/routing"
 import { BlogViewer } from "../../../components/writing/blog-viewer"
 import { AppLink as Link } from "../../../lib/routing"

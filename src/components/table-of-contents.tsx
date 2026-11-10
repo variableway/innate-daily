@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { cn } from "@innate/ui"
+import { cn } from "@ui"
 
 export interface TocItem {
   id: string

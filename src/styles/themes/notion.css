@@ -1,0 +1,102 @@
+/* notion —— 暖调编辑 / 教育风（纸感亲和骨架）。
+   差异化锚点：暖纸背景 + 大圆角 + 软边框 + 宽松排版；
+   借原 marshmallow（studio）的暖粉亲和感做 accent，替代其展示型字体绑定。 */
+
+:root[data-theme="notion"] {
+  --background: oklch(0.975 0.012 85);
+  --foreground: oklch(0.2 0.012 70);
+  --card: oklch(0.995 0.005 85);
+  --card-foreground: oklch(0.2 0.012 70);
+  --popover: oklch(0.995 0.005 85);
+  --popover-foreground: oklch(0.2 0.012 70);
+  --primary: oklch(0.75 0.16 75);
+  --primary-foreground: oklch(0.24 0.05 75);
+  --secondary: oklch(0.945 0.015 85);
+  --secondary-foreground: oklch(0.28 0.015 75);
+  --muted: oklch(0.935 0.015 85);
+  --muted-foreground: oklch(0.52 0.02 70);
+  /* 暖粉 accent（借鉴 marshmallow 的亲和感） */
+  --accent: oklch(0.86 0.08 355);
+  --accent-foreground: oklch(0.3 0.06 355);
+  --destructive: oklch(0.62 0.19 22);
+  --border: oklch(0.25 0.01 70 / 8%);
+  --input: oklch(0.25 0.01 70 / 10%);
+  --ring: oklch(0.75 0.16 75);
+  --chart-1: oklch(0.75 0.16 75);
+  --chart-2: oklch(0.68 0.12 355);
+  --chart-3: oklch(0.6 0.12 230);
+  --chart-4: oklch(0.72 0.12 150);
+  --chart-5: oklch(0.62 0.14 30);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.955 0.015 85);
+  --sidebar-foreground: oklch(0.22 0.012 70);
+  --sidebar-primary: oklch(0.75 0.16 75);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.9 0.03 355);
+  --sidebar-accent-foreground: oklch(0.28 0.04 355);
+  --sidebar-border: oklch(0.25 0.01 70 / 8%);
+  --sidebar-ring: oklch(0.75 0.16 75);
+  /* 宽松的编辑排版密度 */
+  --spacing-page: 1.75rem;
+  --spacing-section: 1.75rem;
+  --spacing-block: 1rem;
+  --surface: oklch(0.945 0.015 85);
+  --code: oklch(0.925 0.015 85);
+  --selection: oklch(0.9 0.06 80);
+  --selection-foreground: oklch(0.2 0.012 70);
+  /* 暖调语义色 */
+  --success: oklch(0.94 0.05 150);
+  --success-foreground: oklch(0.45 0.1 150);
+  --warning: oklch(0.95 0.07 80);
+  --warning-foreground: oklch(0.5 0.11 65);
+  --info: oklch(0.93 0.04 220);
+  --info-foreground: oklch(0.45 0.08 220);
+}
+
+.dark[data-theme="notion"] {
+  --background: oklch(0.2 0.012 60);
+  --foreground: oklch(0.95 0.01 80);
+  --card: oklch(0.245 0.012 60);
+  --card-foreground: oklch(0.95 0.01 80);
+  --popover: oklch(0.245 0.012 60);
+  --popover-foreground: oklch(0.95 0.01 80);
+  --primary: oklch(0.82 0.15 75);
+  --primary-foreground: oklch(0.24 0.05 75);
+  --secondary: oklch(0.29 0.012 60);
+  --secondary-foreground: oklch(0.92 0.01 80);
+  --muted: oklch(0.29 0.012 60);
+  --muted-foreground: oklch(0.66 0.02 70);
+  --accent: oklch(0.5 0.1 355);
+  --accent-foreground: oklch(0.96 0.02 355);
+  --destructive: oklch(0.62 0.2 22);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.82 0.15 75);
+  --chart-1: oklch(0.82 0.15 75);
+  --chart-2: oklch(0.72 0.12 355);
+  --chart-3: oklch(0.65 0.12 230);
+  --chart-4: oklch(0.78 0.12 150);
+  --chart-5: oklch(0.68 0.14 30);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.225 0.012 60);
+  --sidebar-foreground: oklch(0.95 0.01 80);
+  --sidebar-primary: oklch(0.82 0.15 75);
+  --sidebar-primary-foreground: oklch(0.24 0.05 75);
+  --sidebar-accent: oklch(0.31 0.03 355);
+  --sidebar-accent-foreground: oklch(0.96 0.02 355);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.82 0.15 75);
+  --spacing-page: 1.75rem;
+  --spacing-section: 1.75rem;
+  --spacing-block: 1rem;
+  --surface: oklch(0.27 0.012 60);
+  --code: oklch(0.29 0.012 60);
+  --selection: oklch(0.45 0.07 355);
+  --selection-foreground: oklch(0.96 0.02 355);
+  --success: oklch(0.32 0.05 150);
+  --success-foreground: oklch(0.86 0.09 150);
+  --warning: oklch(0.36 0.06 75);
+  --warning-foreground: oklch(0.88 0.08 80);
+  --info: oklch(0.33 0.05 220);
+  --info-foreground: oklch(0.87 0.06 220);
+}

@@ -6,7 +6,7 @@ import {
   SoftGitBranch,
   SoftStar,
 } from "../icons/soft-icons"
-import { Badge, Button } from "@innate/ui"
+import { Badge, Button } from "@ui"
 import type { CollectionItem } from "../../lib/collections/types"
 import { collectionRepo, repoBadgeLabel, repoBadgeTitle } from "../../lib/collections/repo"
 import { categoryMeta } from "../../lib/writing/category-meta"

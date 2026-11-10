@@ -1,0 +1,304 @@
+/* token 与主题层(无 Tailwind 入口):
+   全部主题 token、明暗变体、base 层的唯一事实源。
+   globals.css(仓内入口)与消费方的 @innate/ui/tokens.css 导出都指向这里拆出的内容;
+   改 token 只改本文件与 ./themes/,不要再改 globals.css。 */
+@import "tw-animate-css";
+/* 主题变体（issue #58 合并精简后共 4 档）：
+   default 在本文件 :root / .dark（shadcn Neutral）；
+   webshell（品牌）/ linear（ToB 效率）/ notion（暖调编辑教育）在 themes/*.css。 */
+@import "./themes/webshell.css";
+@import "./themes/linear.css";
+@import "./themes/notion.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* default = shadcn/ui 官方 Neutral（ui.shadcn.com/docs/theming）。
+   原先紫主色已迁到 themes/webshell.css。
+   --spacing-* / --content-* / --surface / --code / --selection / --success|warning|info
+   是仓库扩展 token，官方 scaffold 没有，保留。 */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  /* ── semantic spacing tokens (4px grid) ── */
+  --spacing-page: 1.5rem;
+  --spacing-section: 1.5rem;
+  --spacing-block: 0.75rem;
+  /* ── content width constraints ── */
+  --content-max-width: 90rem;
+  --content-min-width: 60rem;
+  --content-max-width-wide: 100%;
+  --content-min-width-wide: 0rem;
+  --surface: oklch(0.97 0 0);
+  --surface-foreground: oklch(0.145 0 0);
+  --code: oklch(0.95 0 0);
+  --code-foreground: oklch(0.145 0 0);
+  --selection: oklch(0.85 0 0);
+  --selection-foreground: oklch(0.145 0 0);
+  --success: oklch(0.95 0.04 154);
+  --success-foreground: oklch(0.45 0.11 154);
+  --warning: oklch(0.98 0.04 72);
+  --warning-foreground: oklch(0.55 0.11 58);
+  --info: oklch(0.95 0.03 205);
+  --info-foreground: oklch(0.46 0.08 205);
+  /* 字体默认栈。使用方在自己的入口里、本文件之后重设 --font-sans / --font-mono / --font-serif。
+     第一个名字必须和已加载的 @font-face 一致；不加载就落到后面的系统字体。
+     主题选择器（:root[data-theme]）比这里更具体，选中带字体的主题时覆盖使用方的 :root。 */
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --surface: oklch(0.205 0 0);
+  --surface-foreground: oklch(0.985 0 0);
+  --code: oklch(0.269 0 0);
+  --code-foreground: oklch(0.985 0 0);
+  --selection: oklch(0.4 0 0);
+  --selection-foreground: oklch(0.985 0 0);
+  --success: oklch(0.31 0.05 154);
+  --success-foreground: oklch(0.86 0.09 154);
+  --warning: oklch(0.35 0.05 70);
+  --warning-foreground: oklch(0.88 0.08 80);
+  --info: oklch(0.32 0.04 205);
+  --info-foreground: oklch(0.87 0.06 205);
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-selection: var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    line-height: 1.35;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* 全站细滚动条。侧栏默认藏起来，悬停再露出。 */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 28%, transparent)
+    transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--foreground) 28%, transparent);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+/* 内容区是 flex 列，子块不能被压扁，否则卡片只剩标题。 */
+[data-slot="spec-page-content"] > * {
+  flex-shrink: 0;
+}
+
+/* 侧栏滚动条默认藏起来，悬停再露出细条。 */
+[data-sidebar="content"] {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+[data-sidebar="content"]:hover {
+  scrollbar-color: color-mix(in oklch, var(--foreground) 32%, transparent)
+    transparent;
+}
+[data-sidebar="content"]::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+[data-sidebar="content"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-sidebar="content"]::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 999px;
+}
+[data-sidebar="content"]:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--foreground) 32%, transparent);
+}
+[data-slot="domain-page-content"],
+[data-slot="spec-page-content"] {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 28%, transparent)
+    transparent;
+}
+[data-slot="domain-page-content"]::-webkit-scrollbar,
+[data-slot="spec-page-content"]::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-slot="domain-page-content"]::-webkit-scrollbar-track,
+[data-slot="spec-page-content"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-slot="domain-page-content"]::-webkit-scrollbar-thumb,
+[data-slot="spec-page-content"]::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, var(--foreground) 28%, transparent);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+/* ── global table sticky header ── */
+[data-slot="table-container"] {
+  height: 100%;
+  overflow: auto;
+}
+
+[data-slot="table-header"] {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: color-mix(in oklch, var(--muted) 60%, var(--background));
+}
+
+/* ── nav active & hover state ── */
+[data-slot="sidebar-menu-button"][data-active],
+[data-slot="sidebar-menu-button"]:hover {
+  --sidebar-accent: oklch(0.5 0 0 / 12%);
+}
+
+/* ── nav menu item gap ── */
+[data-slot="sidebar-menu"] {
+  gap: 2px;
+}
+
+/* ── sidebar footer separator ── */
+[data-slot="sidebar-footer"] {
+  border-top: 1px solid
+    color-mix(in oklch, var(--sidebar-border) 40%, transparent);
+  padding-top: 0.5rem;
+}

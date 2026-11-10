@@ -8,7 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
   Skeleton,
-} from "@innate/ui"
+} from "@ui"
 import { SoftFileText } from "../icons/soft-icons"
 
 export function WritingLoadingState() {

@@ -3,7 +3,7 @@ import {
   Badge,
   Button,
   ScrollArea,
-} from "@innate/ui"
+} from "@ui"
 import { MarkdownPreview } from "../markdown-preview"
 import { TableOfContents, type TocItem } from "../table-of-contents"
 import { labelChipStyle } from "../../lib/writing/label-color"

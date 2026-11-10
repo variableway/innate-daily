@@ -1,4 +1,4 @@
-import { Badge, cn } from "@innate/ui"
+import { Badge, cn } from "@ui"
 import { SoftArrowUpRight, SoftGitBranch } from "../icons/soft-icons"
 import type { CollectionItem } from "../../lib/collections/types"
 import { collectionRepo, repoBadgeLabel, repoBadgeTitle } from "../../lib/collections/repo"

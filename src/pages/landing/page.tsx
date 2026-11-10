@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { useNavigate } from "@tanstack/react-router"
 import { SoftArrowRight } from "../../components/icons/soft-icons"
-import { Badge, Button, ThemeSelector } from "@innate/ui"
+import { Badge, Button, ThemeSelector } from "@ui"
 import { AppSwitcher } from "../../components/app-switcher"
 import { GalleryCard } from "../../components/landing/gallery-card"
 import {

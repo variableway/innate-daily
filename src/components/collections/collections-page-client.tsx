@@ -35,7 +35,7 @@ import {
   ThemeSelector,
   cn,
   useIsMobile,
-} from "@innate/ui"
+} from "@ui"
 import { useNavigate } from "@tanstack/react-router"
 import type { CollectionItem } from "../../lib/collections/types"
 import { CollectionsList } from "./collections-list"

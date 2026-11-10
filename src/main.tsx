@@ -1,10 +1,9 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { RouterProvider } from "@tanstack/react-router"
-import { ThemeProvider } from "@innate/ui"
+import { ThemeProvider } from "@ui"
 import { router } from "./router"
 
-import "@innate/ui/globals.css"
 import "./globals.css"
 
 // 首次访问默认 shadcn-stone 主题；用户一旦手动切换过就尊重 localStorage 里的选择。

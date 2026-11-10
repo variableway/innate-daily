@@ -21,6 +21,10 @@ export default defineConfig({
     dedupe: ["react", "react-dom"],
     alias: [
       {
+        find: "@ui",
+        replacement: path.resolve(pkgDir, "src/components/ui/index.ts"),
+      },
+      {
         find: "#writing-files",
         replacement: path.resolve(
           pkgDir,
@@ -37,6 +41,9 @@ export default defineConfig({
     ],
   },
   optimizeDeps: {
+    // 只从真正的入口扫描依赖，避免仓库内的本地参考材料（references/ 等）
+    // 被卷进依赖预打包。
+    entries: ["index.html"],
     exclude: ["mermaid"],
     include: ["mermaid/dist/mermaid.esm.min.mjs"],
   },

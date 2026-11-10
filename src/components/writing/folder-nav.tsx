@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { cn } from "@innate/ui"
+import { cn } from "@ui"
 import { folderMeta } from "../../lib/writing/category-meta"
 import { labelColorValue } from "../../lib/writing/label-color"
 import type { FolderNode } from "../../lib/writing/folder-tree"

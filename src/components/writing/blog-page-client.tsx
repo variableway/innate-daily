@@ -36,7 +36,7 @@ import {
   ThemeSelector,
   cn,
   useIsMobile,
-} from "@innate/ui"
+} from "@ui"
 import { BlogViewer } from "./blog-viewer"
 import { FolderNav } from "./folder-nav"
 import { Plaza, PlazaLayoutCapsule, type PlazaMode } from "./plaza"

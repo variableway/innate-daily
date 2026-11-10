@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "@tanstack/react-router"
-import { cn } from "@innate/ui"
+import { cn } from "@ui"
 import { SoftLayers, SoftPenLine } from "./icons/soft-icons"
 
 /**

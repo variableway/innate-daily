@@ -1,0 +1,97 @@
+/* webshell —— 产品品牌风（紫主色）。
+   原先 globals.css :root / .dark 的品牌色，default 改回 shadcn Neutral 后保留为 variant。
+   差异化锚点：品牌紫 + 紫味冷灰 chrome + 中圆角（0.5rem），与 default/linear/notion 拉开。 */
+
+:root[data-theme="webshell"] {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.21 0.02 258);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 258);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 258);
+  --primary: oklch(0.57 0.25 289);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.01 255);
+  --secondary-foreground: oklch(0.21 0.02 258);
+  --muted: oklch(0.97 0.01 255);
+  --muted-foreground: oklch(0.55 0.02 256);
+  --accent: oklch(0.97 0.01 255);
+  --accent-foreground: oklch(0.21 0.02 258);
+  --destructive: oklch(0.58 0.2 27);
+  --border: oklch(0.92 0.01 255);
+  --input: oklch(0.92 0.01 255);
+  --ring: oklch(0.57 0.25 289);
+  --chart-1: oklch(0.57 0.25 289);
+  --chart-2: oklch(0.55 0.11 205);
+  --chart-3: oklch(0.62 0.13 152);
+  --chart-4: oklch(0.63 0.15 62);
+  --chart-5: oklch(0.59 0.14 16);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.955 0.008 285);
+  --sidebar-foreground: oklch(0.42 0.015 285);
+  --sidebar-primary: oklch(0.57 0.25 289);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.93 0.02 285);
+  --sidebar-accent-foreground: oklch(0.21 0.02 258);
+  --sidebar-border: oklch(0.91 0.012 285);
+  --sidebar-ring: oklch(0.57 0.25 289);
+  --surface: oklch(0.965 0.008 285);
+  --surface-foreground: oklch(0.21 0.02 258);
+  --code: oklch(0.95 0.005 285);
+  --code-foreground: oklch(0.21 0.02 258);
+  --selection: oklch(0.9 0.05 289);
+  --selection-foreground: oklch(0.21 0.02 258);
+  --success: oklch(0.95 0.04 154);
+  --success-foreground: oklch(0.45 0.11 154);
+  --warning: oklch(0.98 0.04 72);
+  --warning-foreground: oklch(0.55 0.11 58);
+  --info: oklch(0.95 0.03 205);
+  --info-foreground: oklch(0.46 0.08 205);
+}
+
+.dark[data-theme="webshell"] {
+  --background: oklch(0.21 0.02 258);
+  --foreground: oklch(0.98 0.01 270);
+  --card: oklch(0.28 0.02 258);
+  --card-foreground: oklch(0.98 0.01 270);
+  --popover: oklch(0.28 0.02 258);
+  --popover-foreground: oklch(0.98 0.01 270);
+  --primary: oklch(0.73 0.16 289);
+  --primary-foreground: oklch(0.21 0.02 258);
+  --secondary: oklch(0.28 0.02 258);
+  --secondary-foreground: oklch(0.98 0.01 270);
+  --muted: oklch(0.28 0.02 258);
+  --muted-foreground: oklch(0.74 0.02 265);
+  --accent: oklch(0.28 0.02 258);
+  --accent-foreground: oklch(0.98 0.01 270);
+  --destructive: oklch(0.42 0.11 24);
+  --border: oklch(0.38 0.02 258);
+  --input: oklch(0.38 0.02 258);
+  --ring: oklch(0.73 0.16 289);
+  --chart-1: oklch(0.73 0.16 289);
+  --chart-2: oklch(0.55 0.11 205);
+  --chart-3: oklch(0.62 0.13 152);
+  --chart-4: oklch(0.63 0.15 62);
+  --chart-5: oklch(0.59 0.14 16);
+  --radius: 0.5rem;
+  --sidebar: oklch(0.24 0.02 258);
+  --sidebar-foreground: oklch(0.98 0.01 270);
+  --sidebar-primary: oklch(0.73 0.16 289);
+  --sidebar-primary-foreground: oklch(0.21 0.02 258);
+  --sidebar-accent: oklch(0.28 0.02 258);
+  --sidebar-accent-foreground: oklch(0.98 0.01 270);
+  --sidebar-border: oklch(0.38 0.02 258);
+  --sidebar-ring: oklch(0.73 0.16 289);
+  --surface: oklch(0.28 0.02 258);
+  --surface-foreground: oklch(0.98 0.01 270);
+  --code: oklch(0.269 0 0);
+  --code-foreground: oklch(0.98 0.01 270);
+  --selection: oklch(0.4 0 0);
+  --selection-foreground: oklch(0.98 0.01 270);
+  --success: oklch(0.31 0.05 154);
+  --success-foreground: oklch(0.86 0.09 154);
+  --warning: oklch(0.35 0.05 70);
+  --warning-foreground: oklch(0.88 0.08 80);
+  --info: oklch(0.32 0.04 205);
+  --info-foreground: oklch(0.87 0.06 205);
+}

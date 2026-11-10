@@ -4,7 +4,7 @@ import {
   useNavigate,
   useSearch,
 } from "@tanstack/react-router"
-import { cn } from "@innate/ui"
+import { cn } from "@ui"
 import { useWritingContent } from "../lib/content/use-writing-content"
 import { countByCategory } from "../lib/writing/filter-posts"
 import { categoryMeta } from "../lib/writing/category-meta"
