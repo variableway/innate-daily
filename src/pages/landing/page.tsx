@@ -86,7 +86,7 @@ export function LandingPage() {
               共 {posts.length} 篇笔记，{folders.length} 个目录，
               {categories.length} 个分类，{collections.length} 个收藏。
             </p>
-            <div className="mt-1">
+            <div className="mt-1 flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -95,14 +95,34 @@ export function LandingPage() {
                 进入全部笔记
                 <SoftArrowRight data-icon="inline-end" />
               </Button>
+              {collections.length > 0 ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate({ to: "/collections", search: {} })}
+                >
+                  进入全部收藏
+                  <SoftArrowRight data-icon="inline-end" />
+                </Button>
+              ) : null}
             </div>
           </section>
 
           {collections.length > 0 ? (
             <section className="flex flex-col gap-3">
-              <h2 className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-                Collections
-              </h2>
+              <div className="flex items-baseline justify-between gap-2">
+                <h2 className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+                  Collections
+                </h2>
+                <button
+                  type="button"
+                  className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
+                  onClick={() => navigate({ to: "/collections", search: {} })}
+                >
+                  查看全部
+                  <SoftArrowRight className="size-3.5" data-icon />
+                </button>
+              </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {collections.map((item) => (
                   <GalleryCard
@@ -118,9 +138,19 @@ export function LandingPage() {
           ) : null}
 
           <section className="flex flex-col gap-3">
-            <h2 className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-              Notes
-            </h2>
+            <div className="flex items-baseline justify-between gap-2">
+              <h2 className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
+                Notes
+              </h2>
+              <button
+                type="button"
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
+                onClick={() => navigate({ to: "/writing", search: {} })}
+              >
+                查看全部
+                <SoftArrowRight className="size-3.5" data-icon />
+              </button>
+            </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {folders.map((node) => (
                 <GalleryCard
