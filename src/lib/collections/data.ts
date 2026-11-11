@@ -1,17 +1,30 @@
 import type { CollectionItem, CollectionsData } from "./types"
 import { COLLECTION_CATEGORIES } from "./types"
 import collectionsData from "../../data/collections.json"
+import autoThumbnails from "../../data/thumbnails.gen.json"
 
+const autoThumbnailsMap = autoThumbnails as Record<string, string>
 const data = collectionsData as CollectionsData
 
+/**
+ * 缩略图三层回落（issue #14）：
+ * 显式 thumbnail（人工截图，最高优先）→ thumbnails.gen.json（构建期
+ * 自动抓取的 og:image，见 scripts/fetch-thumbnails.mjs）→ 卡片组件里
+ * 的 coverArtSvg 生成封面。
+ */
+function withAutoThumbnail(item: CollectionItem): CollectionItem {
+  return item.thumbnail ? item : { ...item, thumbnail: autoThumbnailsMap[item.id] }
+}
+
 export function getAllCollections(): CollectionItem[] {
-  return [...data.collections].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  )
+  return [...data.collections]
+    .map(withAutoThumbnail)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
 export function getCollectionById(id: string): CollectionItem | undefined {
-  return data.collections.find((c) => c.id === id)
+  const item = data.collections.find((c) => c.id === id)
+  return item ? withAutoThumbnail(item) : undefined
 }
 
 export function getUniqueSources(): string[] {
